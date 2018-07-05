@@ -1,5 +1,14 @@
+__precompile__()
+
 module Widgets
 
-# package code goes here
+using Observables, DataStructures
+
+export widget, ui, @ui
+
+include("ui.jl")
+include("utils.jl")
+include("layout.jl")
+include("map.jl")
 
 end # module
