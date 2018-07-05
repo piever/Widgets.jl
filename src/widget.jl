@@ -2,21 +2,21 @@ function widget end
 
 abstract type AbstractWidget; end
 
-mutable struct Widget <: AbstractWidget
+mutable struct Widget{T} <: AbstractWidget
     children::OrderedDict{Symbol, Any}
     output
     display
     layout
-    function Widget(children;
+    function Widget{T}(children;
         output = nothing,
         display = nothing,
         layout = ui -> div(values(ui.children)..., (ui.display isa Void ? ui.output : ui.display)))
 
-        new(children, output, display, layout)
+        new{T}(children, output, display, layout)
     end
 end
 
-Widget() = Widget(OrderedDict{Symbol, Any}())
+Widget{T}() = Widget{T}(OrderedDict{Symbol, Any}())
 
 observe(x) = x
 observe(u::Widget) = u.output
@@ -59,7 +59,7 @@ macro widget(func_call)
             v[i] = parse_function_call(d, line, replace_obs)
         end
     end
-    unshift!(v, :($d = Widgets.Widget()))
+    unshift!(v, :($d = Widgets.Widget{$(Expr(:quote, extract_name(func_name)))}()))
     push!(v, d)
     (extract_name(func_name) == :ui) && return esc(func_call)
     quote

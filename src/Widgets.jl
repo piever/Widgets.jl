@@ -6,7 +6,7 @@ using Observables, DataStructures
 
 export widget, ui, @ui
 
-include("ui.jl")
+include("widget.jl")
 include("utils.jl")
 include("layout.jl")
 include("map.jl")
