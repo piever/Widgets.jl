@@ -2,7 +2,7 @@ __precompile__()
 
 module Widgets
 
-using Observables, DataStructures
+using Observables, DataStructures, Compat
 
 export widget, @widget
 

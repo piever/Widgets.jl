@@ -74,7 +74,7 @@ macro widget(func_call)
             v[i] = parse_function_call(d, line, replace_obs)
         end
     end
-    unshift!(v, :($d = Widgets.Widget{$(quotenode(extract_name(func_name)))}()))
+    pushfirst!(v, :($d = Widgets.Widget{$(quotenode(extract_name(func_name)))}()))
     push!(v, d)
     (extract_name(func_name) == :widget) && return esc(func_call)
     quote

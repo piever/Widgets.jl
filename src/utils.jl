@@ -33,7 +33,7 @@ function parse_function_call!(syms, d, x::Expr, func, args...)
         new_var
     elseif x.head == :. && length(x.args) == 2 && isquotenode(x.args[2])
         Expr(x.head, parse_function_call!(syms, d, x.args[1], func, args...), x.args[2])
-    elseif x.head == :quote
+    elseif isquotenode(x)
         func(d, x, args...)
     elseif x.head == :call && length(x.args) == 2 && x.args[1] == :^
         x.args[2]
@@ -47,7 +47,9 @@ function parse_function_call!(syms, d, x::Expr, func, args...)
 end
 
 function parse_function_call!(syms, d, x, func, args...)
-    if x == :(_)
+    if isquotenode(x)
+        func(d, x, args...)
+    elseif x == :(_)
         func(d, args...)
     else
         x
