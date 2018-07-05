@@ -14,7 +14,7 @@ mutable struct Widget{T} <: AbstractWidget
         display = nothing,
         scope = nothing,
         update = t -> (),
-        layout = ui -> div(values(ui.children)..., (ui.display isa Void ? ui.output : ui.display))) where {T}
+        layout = defaultlayout) where {T}
 
         child_dict = OrderedDict{Symbol, Any}(Symbol(key) => val for (key, val) in children)
         new{T}(child_dict, output, display, scope, update, layout)

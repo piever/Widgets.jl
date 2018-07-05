@@ -16,3 +16,9 @@ macro layout!(d, x)
 end
 
 function div end
+
+function defaultlayout(ui::Widget)
+    d, o = ui.display, ui.output
+    output = d !== nothing ? (d,) : o !== nothing ? (o,) : ()
+    div(values(ui.children)..., output...)
+end
