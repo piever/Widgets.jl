@@ -76,7 +76,7 @@ macro widget(func_call)
     end
     unshift!(v, :($d = Widgets.Widget{$(Expr(:quote, extract_name(func_name)))}()))
     push!(v, d)
-    (extract_name(func_name) == :ui) && return esc(func_call)
+    (extract_name(func_name) == :widget) && return esc(func_call)
     quote
         $func_call
         Widgets.widget(::Val{$(Expr(:quote, func_name))}, args...; kwargs...) = $func_name(args...; kwargs...)
