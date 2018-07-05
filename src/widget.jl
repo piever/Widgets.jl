@@ -6,17 +6,32 @@ mutable struct Widget{T} <: AbstractWidget
     children::OrderedDict{Symbol, Any}
     output
     display
-    layout
-    function Widget{T}(children;
+    scope
+    update::Function
+    layout::Function
+    function Widget{T}(children = OrderedDict{Symbol, Any}();
         output = nothing,
         display = nothing,
-        layout = ui -> div(values(ui.children)..., (ui.display isa Void ? ui.output : ui.display)))
+        scope = nothing,
+        update = t -> (),
+        layout = ui -> div(values(ui.children)..., (ui.display isa Void ? ui.output : ui.display))) where {T}
 
-        new{T}(children, output, display, layout)
+        child_dict = OrderedDict{Symbol, Any}(Symbol(key) => val for (key, val) in children)
+        new{T}(child_dict, output, display, scope, update, layout)
     end
 end
 
-Widget{T}() = Widget{T}(OrderedDict{Symbol, Any}())
+function Widget{T}(w::Widget; kwargs...) where {T}
+    n = Widget{T}(w.children)
+    dict = Dict(kwargs)
+    for field in fieldnames(Widget)
+        val = get(dict, field, getfield(w, field))
+        setfield!(n, field, val)
+    end
+    n
+end
+
+widgettype(::Widget{T}) where {T} = T
 
 observe(x) = x
 observe(u::Widget) = u.output
