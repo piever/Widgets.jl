@@ -4,7 +4,7 @@ module Widgets
 
 using Observables, DataStructures
 
-export widget, ui, @ui
+export widget, @widget
 
 include("widget.jl")
 include("utils.jl")
