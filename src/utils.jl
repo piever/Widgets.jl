@@ -1,7 +1,14 @@
 isquotenode(::Any) = false
 isquotenode(x::Expr) = x.head == :quote
+isquotenode(x::QuoteNode) = true
 
-iswidget(x) = isquotenode(x) || x in [Expr(:., :_, Expr(:quote, :output)), Expr(:., :_, Expr(:quote, :display))]
+@static if VERSION < v"0.7.0-DEV.2005"
+    quotenode(x) = Expr(:quote, x)
+else
+    quotenode(x) = QuoteNode(x)
+end
+
+iswidget(x) = isquotenode(x) || x in [Expr(:., :_, quotenode(:output)), Expr(:., :_, quotenode(:display))]
 iswidgettuple(x) = false
 iswidgettuple(x::Expr) = x.head == :tuple && all(isquotenode, x.args)
 
@@ -14,7 +21,7 @@ end
 
 islayoutassignment(x) = false
 
-islayoutassignment(expr::Expr) = expr.head == :(=) && (expr.args[1] == Expr(:., :_, Expr(:quote, :layout)))
+islayoutassignment(expr::Expr) = expr.head == :(=) && (expr.args[1] == Expr(:., :_, quotenode(:layout)))
 
 parse_function_call(d, x, func, args...) = parse_function_call!(OrderedDict(), d, x, func, args...)
 
@@ -26,7 +33,7 @@ function parse_function_call!(syms, d, x::Expr, func, args...)
         new_var
     elseif x.head == :. && length(x.args) == 2 && isquotenode(x.args[2])
         Expr(x.head, parse_function_call!(syms, d, x.args[1], func, args...), x.args[2])
-    elseif x.head == :quote
+    elseif isquotenode(x)
         func(d, x, args...)
     elseif x.head == :call && length(x.args) == 2 && x.args[1] == :^
         x.args[2]
@@ -40,7 +47,9 @@ function parse_function_call!(syms, d, x::Expr, func, args...)
 end
 
 function parse_function_call!(syms, d, x, func, args...)
-    if x == :(_)
+    if isquotenode(x)
+        func(d, x, args...)
+    elseif x == :(_)
         func(d, args...)
     else
         x
