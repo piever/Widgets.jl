@@ -1,4 +1,4 @@
-using Widgets
+using Widgets, Observables
 @static if VERSION < v"0.7.0-DEV.2005"
     using Base.Test
 else
@@ -6,7 +6,7 @@ else
 end
 
 @testset "utils" begin
-    d = Widget{:test}(Dict(:a => 1, :b => Observable(2)))
+    d = Widgets.Widget{:test}(Dict(:a => 1, :b => Observable(2)))
     m = Widgets.@map d :a + :b[]
     n = Widgets.@map d :a + $(:b)
     @test m == 3
@@ -20,14 +20,15 @@ end
     @test l(d) == 4
 end
 
+@widget function myui(x)
+    :a = x + 1
+    :b = Observable(10)
+    _.output = $(:b) + :a
+    _.display = "The sum is "*string($(_.output))
+    _.layout = _.display
+end
+
 @testset "widget" begin
-    @widget function myui(x)
-        :a = x + 1
-        :b = Observable(10)
-        _.output = $(:b) + :a
-        _.display = "The sum is "*string($(_.output))
-        _.layout = _.display
-    end
     ui = myui(5)
     @test ui[:a] == 6
     @test ui[:b][] == 10
