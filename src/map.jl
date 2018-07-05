@@ -12,4 +12,4 @@ end
 
 replace_obs(s) = s
 
-replace_obs(d, x...) = Expr(:call, :(UIRecipesBase.observe), replace_wdg(d, x...))
+replace_obs(d, x...) = Expr(:call, :(Widgets.observe), replace_wdg(d, x...))

@@ -7,7 +7,7 @@ function layout_helper(x)
     func
 end
 
-replace_wdg(d, x...) = foldl((a,b) -> Expr(:call, :(UIRecipesBase.observe), a, b), d, x)
+replace_wdg(d, x...) = foldl((a,b) -> Expr(:call, :(Widgets.observe), a, b), d, x)
 replace_wdg(s) = s
 
 macro layout!(d, x)
