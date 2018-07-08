@@ -66,7 +66,7 @@ replace_ref(s) = s
 replace_ref(d, x...) = foldl((a,b) -> Expr(:ref, a, b), d, x)
 
 macro widget(func_call)
-    func_call.head == :function || error("@ui accepts only function definitions")
+    func_call.head == :function || error("@widget accepts only function definitions")
     func_signature, func_body = func_call.args
     func_name = func_signature.args[1]
     @assert func_body.head == :block
