@@ -33,10 +33,14 @@ end
 
 widgettype(::Widget{T}) where {T} = T
 
+component(x, u) = getindex(x, u)
+component(x::Observable, u) = unwrap(map(t -> component(t, u), x))
+component(x, args...) = foldl(component, x, args)
+
 observe(x) = x
 observe(u::Widget) = u.output
-observe(u::Widget, s) = getindex(u, s)
-observe(o::Observable, args...) = unwrap(map(t -> observe(t, args...), o))
+observe(o::Observable) = unwrap(map(observe, o))
+observe(args...) = observe(component(args...))
 
 function descendants(ui::Widget)
     desc = copy(ui.children)
@@ -48,7 +52,7 @@ function descendants(ui::Widget)
     desc
 end
 
-Base.getindex(ui::Widget, i::Symbol) = get(ui.children, i, descendants(ui)[i])
+Base.getindex(ui::Widget, i::Symbol) = haskey(ui.children, i) ? getindex(ui.children, i) : descendants(ui)[i]
 Base.getindex(ui::Widget, i::AbstractString) = getindex(ui, Symbol(i))
 Base.setindex!(ui::Widget, val, i::Symbol) = setindex!(ui.children, val, i)
 Base.setindex!(ui::Widget, val, i::AbstractString) = setindex!(ui, val, Symbol(i))

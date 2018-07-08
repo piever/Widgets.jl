@@ -24,8 +24,9 @@ ObservablePair(first::Observable; f = identity, g = identity) =
 off(o::ObservablePair) = (off(o.first, o.first2second); off(o.second, o.second2first))
 
 unwrap(x) = x
-function unwrap(obs::Observable{<:Observable})
+function unwrap(obs::Observable)
     obs1 = obs[]
+    obs1 isa Observable || return obs
     obs2 = Observable{Any}(obs1[])
     p = ObservablePair(obs1, obs2)
     on(obs) do val
