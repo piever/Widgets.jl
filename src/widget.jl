@@ -42,17 +42,21 @@ observe(u::Widget) = u.output
 observe(o::Observable) = unwrap(map(observe, o))
 observe(args...) = observe(component(args...))
 
-function descendants(ui::Widget)
-    desc = copy(ui.children)
+_getindex(ui::Widget, i::Symbol) = get(ui.children, i, nothing)
+
+function Base.getindex(ui::Widget, i::Symbol)
+    val = _getindex(ui, i)
+    val === nothing || return val
+
     for (key, el) in ui.children
         if el isa Widget
-            merge!(desc, descendants(el))
+            val = getindex(el, i)
+            val === nothing || return val
         end
     end
-    desc
+    return nothing
 end
 
-Base.getindex(ui::Widget, i::Symbol) = haskey(ui.children, i) ? getindex(ui.children, i) : descendants(ui)[i]
 Base.getindex(ui::Widget, i::AbstractString) = getindex(ui, Symbol(i))
 Base.setindex!(ui::Widget, val, i::Symbol) = setindex!(ui.children, val, i)
 Base.setindex!(ui::Widget, val, i::AbstractString) = setindex!(ui, val, Symbol(i))
