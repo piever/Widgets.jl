@@ -36,6 +36,7 @@ widgettype(::Widget{T}) where {T} = T
 observe(x) = x
 observe(u::Widget) = u.output
 observe(u::Widget, s) = getindex(u, s)
+observe(o::Observable, args...) = unwrap(map(t -> observe(t, args...), o))
 
 function descendants(ui::Widget)
     desc = copy(ui.children)
