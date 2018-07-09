@@ -23,9 +23,9 @@ end
 @widget function myui(x)
     :a = x + 1
     :b = Observable(10)
-    _.output = $(:b) + :a
-    _.display = "The sum is "*string($(_.output))
-    _.layout = _.display
+    @output!  WIDGET $(:b) + :a
+    @display! WIDGET "The sum is "*string($(_.output))
+    @layout!  WIDGET _.display
 end
 
 @testset "widget" begin

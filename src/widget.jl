@@ -4,14 +4,14 @@ abstract type AbstractWidget; end
 
 mutable struct Widget{T} <: AbstractWidget
     children::OrderedDict{Symbol, Any}
-    output
-    display
+    output::Observable
+    display::Observable
     scope
     update::Function
     layout::Function
     function Widget{T}(children = OrderedDict{Symbol, Any}();
-        output = nothing,
-        display = nothing,
+        output = Observable{Any}(nothing),
+        display = Observable{Any}(nothing),
         scope = nothing,
         update = t -> (),
         layout = defaultlayout) where {T}
@@ -65,7 +65,24 @@ replace_ref(s) = s
 
 replace_ref(d, x...) = foldl((a,b) -> Expr(:ref, a, b), d, x)
 
-macro widget(func_call)
+"""
+`@widget(wdgname, func_call)`
+
+Special macro to create "recipes" for custom widgets. The `@widget` macro takes to argument, a variable
+name `wdgname` and a function call `func_call`. The function call is changed by the macro in several ways:
+- an extra line is added at the beginning to initiliaze a variable called `wdgname::Widget` that can be used to refer to the widget in the function body
+- all lines of the type `sym::Symbol = expr` are replaced with `wdgname[sym] = @map(wdgname, expr)`, see [`Widgets.@map`](@ref) for more details
+- an extra line is added at the end to return `wdgname`
+
+The macro then registers the function `func_call` and exports it.
+It also overloads the `widget` function with the following signature:
+
+`Widgets.widget(::Widget{Symbol(func_name)}, args...; kwargs..) = func_name(args...; kwargs...)`
+"""
+macro widget(args...)
+    @assert 1 <= length(args) <= 2
+    func_call = args[end]
+    wdgname = length(args) == 2 ? args[1] : :WIDGET
     func_call.head == :function || error("@widget accepts only function definitions")
     func_signature, func_body = func_call.args
     func_name = func_signature.args[1]
@@ -76,19 +93,15 @@ macro widget(func_call)
         if iswidgetassignment(line)
             line.args[1] = parse_function_call(d, line.args[1], replace_ref)
             line.args[2] = map_helper(d, line.args[2])
-        elseif islayoutassignment(line)
-            line.args[1] = parse_function_call(d, line.args[1], replace_ref)
-            line.args[2] = layout_helper(line.args[2])
-        else
-            v[i] = parse_function_call(d, line, replace_obs)
         end
     end
+    pushfirst!(v, :($wdgname = $d))
     pushfirst!(v, :($d = Widgets.Widget{$(quotenode(extract_name(func_name)))}()))
     push!(v, d)
     (extract_name(func_name) == :widget) && return esc(func_call)
     quote
         $func_call
-        Widgets.widget(::Val{$(quotenode(func_name))}, args...; kwargs...) = $func_name(args...; kwargs...)
+        Widgets.widget(::Widgets.Widget{$(quotenode(func_name))}, args...; kwargs...) = $func_name(args...; kwargs...)
         export $func_name
     end |> esc
 end

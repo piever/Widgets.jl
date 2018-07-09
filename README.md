@@ -10,14 +10,14 @@ To create a custom widget use statement of the type `:a = ...` to add a child. Y
 using Widgets
 using InteractBase, Observables, CSSUtil
 
-@widget function myui(s::Int)
+@widget wdg function myui(s::Int)
     :a = slider(1:s) # :a will be a slider from 1 to the input of s
     :b = slider(1:$(:a)) # :b will be a slider from 1 to the value chosen in :a
     :c = toggle(false)
     :d = $(:c) ? :a[]+:b[] : :a[] - :b[] # The $ means: output updates as soon as :c changes, whereas the changing :a or :b won't update the widget
-    _.output = $(:c) ? $(:a) + $(:b) : $(:a) - $(:b)
-    _.display = "The " * ($(:c) ? "sum" : "difference") * " is " * string($(_.output))
-    _.layout = vbox(hbox(:a, :b, :d), :c, _.display)
+    @output!  wdg $(:c) ? $(:a) + $(:b) : $(:a) - $(:b)
+    @display! wdg "The " * ($(:c) ? "sum" : "difference") * " is " * string($(_.output))
+    @layout!  wdg vbox(hbox(:a, :b, :d), :c, _.display)
 end
 ```
 
