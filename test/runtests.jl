@@ -35,7 +35,7 @@ end
     @test ui.output[] == 16
     @test ui.display[] == ui.layout(ui)[] == "The sum is 16"
 
-    ui = Widgets.widget(Val(:myui), 5)
+    ui = Widgets.widget(Widgets.Widget{:myui}(), 5)
     @test ui[:a] == 6
     @test ui[:b][] == 10
     @test ui.output[] == 16
