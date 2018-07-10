@@ -77,17 +77,16 @@ name `wdgname` and a function call `func_call`. The function call is changed by 
 The macro then registers the function `func_call` and exports it.
 It also overloads the `widget` function with the following signature:
 
-`Widgets.widget(::Widget{Symbol(func_name)}, args...; kwargs..) = func_name(args...; kwargs...)`
+`Widgets.widget(::Val{Symbol(func_name)}, args...; kwargs..) = func_name(args...; kwargs...)`
 """
 macro widget(args...)
     @assert 1 <= length(args) <= 2
     func_call = args[end]
-    wdgname = length(args) == 2 ? args[1] : :WIDGET
+    d = length(args) == 2 ? args[1] : :WIDGET
     func_call.head == :function || error("@widget accepts only function definitions")
     func_signature, func_body = func_call.args
     func_name = func_signature.args[1]
     @assert func_body.head == :block
-    d = gensym()
     v = func_body.args
     for (i, line) in enumerate(v)
         if iswidgetassignment(line)
@@ -95,13 +94,14 @@ macro widget(args...)
             line.args[2] = map_helper(d, line.args[2])
         end
     end
-    pushfirst!(v, :($wdgname = $d))
-    pushfirst!(v, :($d = Widgets.Widget{$(quotenode(extract_name(func_name)))}()))
+    shortname = extract_name(func_name)
+    qn = quotenode(shortname)
+    pushfirst!(v, :($d = Widgets.Widget{$qn}()))
     push!(v, d)
-    (extract_name(func_name) == :widget) && return esc(func_call)
+    (shortname == :widget) && return esc(func_call)
     quote
         $func_call
-        Widgets.widget(::Widgets.Widget{$(quotenode(func_name))}, args...; kwargs...) = $func_name(args...; kwargs...)
+        Widgets.widget(::Val{$qn}, args...; kwargs...) = $func_name(args...; kwargs...)
         export $func_name
     end |> esc
 end
