@@ -39,7 +39,7 @@ component(x, args...) = foldl(component, x, args)
 
 observe(x) = x
 observe(u::Widget) = u.output
-observe(o::Observable) = unwrap(map(observe, o))
+observe(o::Observable) = o[] isa Widget ? unwrap(map(observe, o)) : o
 observe(args...) = observe(component(args...))
 
 _getindex(ui::Widget, i::Symbol) = get(ui.children, i, nothing)
