@@ -70,3 +70,25 @@ function extract_name(expr::Expr)
     @assert expr.head == :.
     extract_name(expr.args[2])
 end
+
+"""
+`@nodeps(expr)`
+
+Macro to remove need to depend on package X that defines a recipe to use it in one's own recipe.
+For example, InteractBase defines `dropwdown` recipe. To use `dropdown` in a recipe in a package,
+without depending on InteractBase, wrap the `dropdown` call in the `@nodeps` macro:
+
+```julia
+@widget wdg function myrecipe(i)
+    :label = "My recipe"
+    :dropdown = Widgets.@nodeps dropdown(i)
+end
+```
+"""
+macro nodeps(expr)
+    @assert expr isa Expr
+    @assert expr.head == :call
+    shortname = extract_name(expr.args[1])
+    qn = quotenode(shortname)
+    esc(Expr(:call, :(Widgets.widget), Expr(:call, :Val, qn), expr.args[2:end]...))
+end
