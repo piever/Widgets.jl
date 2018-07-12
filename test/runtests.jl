@@ -1,4 +1,5 @@
-using Widgets, Observables
+using Widgets, Observables, DataStructures, InteractBase
+using Widgets: Widget, @layout, @map, @map!, @on
 @static if VERSION < v"0.7.0-DEV.2005"
     using Base.Test
 else
@@ -6,18 +7,43 @@ else
 end
 
 @testset "utils" begin
-    d = Widgets.Widget{:test}(Dict(:a => 1, :b => Observable(2)))
-    m = Widgets.@map d :a + :b[]
-    n = Widgets.@map d :a + $(:b)
+    d = Widget{:test}(Dict(:a => 1, :b => Observable(2), :c => Widget{:test}(; output = Observable(5))))
+    m = @map d :a + :b[] + :c[]
+    n = @map d :a + $(:b) + :c[]
+    @test m == 8
+    @test n[] == 8
+    d[:b][] = 3
+    sleep(0.1)
+    @test m == 8
+    @test n[] == 9
+    @test isa(d |> @map(:c), Observable)
+
+    t = Widget{:test}(Dict(:a => Observable(2), :b => slider(1:100), :c => button()));
+    Widgets.@map! t :a $(:b)
+    observe(t, :b)[] = 15
+    sleep(0.1)
+    @test t[:a][] == 15
+
+    v = [1]
+    t = Widget{:test}(Dict(:a => Observable(2), :b => slider(1:100), :c => button()));
+    Widgets.@on t v[1] += $(:b)
+    observe(t, :b)[] = 15
+    sleep(0.1)
+    @test v[1] == 16
+    observe(t, :b)[] = 30
+    sleep(0.1)
+    @test v[1] == 46
+
+    d = Widget{:test}(Dict(:a => 1, :b => Observable(2), :c => Widget{:test}(; output = Observable(5))))
+    m = d |> @layout :a + :b[]
+    n = d |> @layout :a + $(:b)
     @test m == 3
     @test n[] == 3
     d[:b][] = 3
     sleep(0.1)
     @test m == 3
     @test n[] == 4
-
-    l = Widgets.@layout :a + :b[]
-    @test l(d) == 4
+    @test isa(@layout(d, :c), Widget)
 end
 
 @widget wdg function myui(x)

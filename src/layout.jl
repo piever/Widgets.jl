@@ -1,29 +1,40 @@
 """
-`@layout(x)`
+`@layout(d, x)`
 
-Returns a function, that takes as argument a widget `d` and replaces e.g. symbol `:s` with the corresponding
-subwidget `d[:s]`.
+Apply the expression `x` to the widget `d`, replacing e.g. symbol `:s` with the corresponding subwidget `d[:s]`
+To create a layout that updates automatically as some `Widget` or `Observable` updates, use `\$(:s)`.
 In this context, `_` refers to the whole widget. To use actual symbols, escape them with `^`, as in `^(:a)`.
 
 ## Examples
 
-```jldoctest map
+```jldoctest layout
 julia> using DataStructures, InteractBase, CSSUtil
 
-julia> f = Widgets.@layout hbox(:b, CSSUtil.hskip(1em), :c);
+julia> t = Widgets.Widget{:test}(OrderedDict(:vertical => Observable(true), :b => slider(1:100), :c => button()));
 
-julia> t = Widgets.Widget{:test}(OrderedDict(:b => slider(1:100), :c => button()));
-
-julia> f(t);
+julia> Widgets.@layout t $(:vertical) ? vbox(:b, CSSUtil.vskip(1em), :c) : hbox(:b, CSSUtil.hskip(1em), :c);
 ```
+
+`@layout(x)`
+
+Curried version of `@layout(d, x)`: anonymous function mapping `d` to `@layout(d, x)`.
 """
-macro layout(x)
-    esc(layout_helper(x))
+macro layout(args...)
+    esc(layout_helper(args...))
 end
 
-function layout_helper(x)
-    func, _ = extract_anonymous_function(x, replace_wdg)
-    func
+function layout_helper(d, expr)
+    syms = OrderedDict()
+    res = parse_function_call!(syms, d, expr, replace_wdg)
+    isempty(syms) && return res
+    func = Expr(:(->), Expr(:tuple, values(syms)...), res)
+    observs = (Expr(:call, :(Widgets.observe), key) for key in keys(syms))
+    Expr(:call, :map, func, observs...)
+end
+
+function layout_helper(expr)
+    d = gensym()
+    Expr(:(->), d, layout_helper(d, expr))
 end
 
 replace_wdg(d, x...) = Expr(:call, :(Widgets.component), d, x...)
