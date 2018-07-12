@@ -20,12 +20,12 @@ end
     @test l(d) == 4
 end
 
-@widget function myui(x)
+@widget wdg function myui(x)
     :a = x + 1
     :b = Observable(10)
-    @output!  WIDGET $(:b) + :a
-    @display! WIDGET "The sum is "*string($(_.output))
-    @layout!  WIDGET _.display
+    @output!  wdg $(:b) + :a
+    @display! wdg "The sum is "*string($(_.output))
+    @layout!  wdg _.display
 end
 
 @testset "widget" begin

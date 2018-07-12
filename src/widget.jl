@@ -82,7 +82,7 @@ It also overloads the `widget` function with the following signature:
 macro widget(args...)
     @assert 1 <= length(args) <= 2
     func_call = args[end]
-    d = length(args) == 2 ? args[1] : :WIDGET
+    d = length(args) == 2 ? args[1] : gensym(:widget)
     func_call.head == :function || error("@widget accepts only function definitions")
     func_signature, func_body = func_call.args
     func_name = func_signature.args[1]
