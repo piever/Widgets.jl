@@ -21,9 +21,14 @@ macro layout(x)
     esc(layout_helper(x))
 end
 
-function layout_helper(x)
-    func, _ = extract_anonymous_function(x, replace_wdg)
-    func
+function layout_helper(expr)
+    d = gensym()
+    syms = OrderedDict()
+    res = parse_function_call!(syms, d, expr, replace_wdg)
+    isempty(syms) && return Expr(:(->), d, res)
+    func = Expr(:(->), Expr(:tuple, values(syms)...), res)
+    observs = (Expr(:call, :(Widgets.observe), key) for key in keys(syms))
+    Expr(:(->), d, Expr(:call, :map, func, observs...))
 end
 
 replace_wdg(d, x...) = Expr(:call, :(Widgets.component), d, x...)

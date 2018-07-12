@@ -19,15 +19,11 @@ function iswidgetassignment(expr::Expr)
     iswidget(expr.args[1])
 end
 
-islayoutassignment(x) = false
-
-islayoutassignment(expr::Expr) = expr.head == :(=) && (expr.args[1] == Expr(:., :_, quotenode(:layout)))
-
 parse_function_call(d, x, func, args...) = parse_function_call!(OrderedDict(), d, x, func, args...)
 
 function parse_function_call!(syms, d, x::Expr, func, args...)
     if x.head == :$ && (all(iswidget, x.args) || length(x.args) == 1 && iswidgettuple(x.args[1]))
-        sym = parse_function_call!(Dict(), d, x.args[1], func, x.args[2:end]..., args...)
+        sym = parse_function_call(d, x.args[1], func, x.args[2:end]..., args...)
         new_var = get(syms, sym, gensym())
         syms[sym] = new_var
         new_var
@@ -57,7 +53,7 @@ function parse_function_call!(syms, d, x, func, args...)
 end
 
 function extract_anonymous_function(x, func, args...)
-    syms = Dict()
+    syms = OrderedDict()
     data = gensym()
     function_call = parse_function_call!(syms, data, x, func, args...)
     anon_func = Expr(:(->), data, function_call)
