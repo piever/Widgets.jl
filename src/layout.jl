@@ -3,16 +3,17 @@
 
 Returns a function, that takes as argument a widget `d` and replaces e.g. symbol `:s` with the corresponding
 subwidget `d[:s]`.
+To create a layout that updates automatically as some `Widget` or `Observable` updates, use `\$(:s)`.
 In this context, `_` refers to the whole widget. To use actual symbols, escape them with `^`, as in `^(:a)`.
 
 ## Examples
 
-```jldoctest map
+```jldoctest layout
 julia> using DataStructures, InteractBase, CSSUtil
 
-julia> f = Widgets.@layout hbox(:b, CSSUtil.hskip(1em), :c);
+julia> t = Widgets.Widget{:test}(OrderedDict(:vertical => Observable(true), :b => slider(1:100), :c => button()));
 
-julia> t = Widgets.Widget{:test}(OrderedDict(:b => slider(1:100), :c => button()));
+julia> f = Widgets.@layout $(:vertical) ? vbox(:b, CSSUtil.vskip(1em), :c) : hbox(:b, CSSUtil.hskip(1em), :c);
 
 julia> f(t);
 ```
