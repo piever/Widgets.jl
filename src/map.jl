@@ -40,6 +40,10 @@ whereas this only updates when button `:c` is pressed:
 julia> Widgets.@map t (\$(:c); :a[] + :b[])
 Observables.Observable{Int64}("ob_33", 52, Any[])
 ```
+
+`@map(x)`
+
+Curried version of `@map(d, x)`: anonymous function mapping `d` to `@map(d, x)`.
 """
 macro map(args...)
     esc(map_helper(args...))
