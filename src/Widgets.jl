@@ -4,7 +4,7 @@ module Widgets
 
 using Observables, DataStructures, Compat
 
-import Observables: off
+import Observables: off, on
 
 export widget, @widget, @layout!, @output!, @display!
 
@@ -12,6 +12,7 @@ include("widget.jl")
 include("utils.jl")
 include("layout.jl")
 include("map.jl")
+include("on.jl")
 include("observablepair.jl")
 include("output.jl")
 

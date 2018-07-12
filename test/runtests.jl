@@ -1,5 +1,5 @@
-using Widgets, Observables
-using Widgets: Widget, @layout
+using Widgets, Observables, DataStructures, InteractBase
+using Widgets: Widget, @layout, @map, @map!, @on
 @static if VERSION < v"0.7.0-DEV.2005"
     using Base.Test
 else
@@ -8,15 +8,20 @@ end
 
 @testset "utils" begin
     d = Widget{:test}(Dict(:a => 1, :b => Observable(2), :c => Widget{:test}(; output = Observable(5))))
-    m = Widgets.@map d :a + :b[] + :c[]
-    n = Widgets.@map d :a + $(:b) + :c[]
+    m = @map d :a + :b[] + :c[]
+    n = @map d :a + $(:b) + :c[]
     @test m == 8
     @test n[] == 8
     d[:b][] = 3
     sleep(0.1)
     @test m == 8
     @test n[] == 9
-    @test isa(d |> Widgets.@map(:c), Observable)
+    @test isa(d |> @map(:c), Observable)
+
+    t = Widget{:test}(Dict(:a => Observable(2), :b => slider(1:100), :c => button()));
+    Widgets.@map! t :a $(:b)
+    observe(t, :b)[] = 15
+    @test t[:a][] == 15
 
     d = Widget{:test}(Dict(:a => 1, :b => Observable(2), :c => Widget{:test}(; output = Observable(5))))
     m = d |> @layout :a + :b[]
