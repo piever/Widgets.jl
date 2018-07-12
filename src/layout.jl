@@ -18,18 +18,22 @@ julia> f = Widgets.@layout $(:vertical) ? vbox(:b, CSSUtil.vskip(1em), :c) : hbo
 julia> f(t);
 ```
 """
-macro layout(x)
-    esc(layout_helper(x))
+macro layout(args...)
+    esc(layout_helper(args...))
+end
+
+function layout_helper(d, expr)
+    syms = OrderedDict()
+    res = parse_function_call!(syms, d, expr, replace_wdg)
+    isempty(syms) && return res
+    func = Expr(:(->), Expr(:tuple, values(syms)...), res)
+    observs = (Expr(:call, :(Widgets.observe), key) for key in keys(syms))
+    Expr(:call, :map, func, observs...)
 end
 
 function layout_helper(expr)
     d = gensym()
-    syms = OrderedDict()
-    res = parse_function_call!(syms, d, expr, replace_wdg)
-    isempty(syms) && return Expr(:(->), d, res)
-    func = Expr(:(->), Expr(:tuple, values(syms)...), res)
-    observs = (Expr(:call, :(Widgets.observe), key) for key in keys(syms))
-    Expr(:(->), d, Expr(:call, :map, func, observs...))
+    Expr(:(->), d, layout_helper(d, expr))
 end
 
 replace_wdg(d, x...) = Expr(:call, :(Widgets.component), d, x...)

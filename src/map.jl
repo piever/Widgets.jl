@@ -6,6 +6,11 @@ function map_helper(d, expr)
     Expr(:call, :map, func, keys(syms)...)
 end
 
+function map_helper(expr)
+    d = gensym()
+    Expr(:(->), d, map_helper(d, expr))
+end
+
 """
 `@map(d, x)`
 
@@ -36,8 +41,8 @@ julia> Widgets.@map t (\$(:c); :a[] + :b[])
 Observables.Observable{Int64}("ob_33", 52, Any[])
 ```
 """
-macro map(d, expr)
-    esc(map_helper(d, expr))
+macro map(args...)
+    esc(map_helper(args...))
 end
 
 replace_obs(s) = s
