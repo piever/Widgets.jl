@@ -21,7 +21,18 @@ end
     t = Widget{:test}(Dict(:a => Observable(2), :b => slider(1:100), :c => button()));
     Widgets.@map! t :a $(:b)
     observe(t, :b)[] = 15
+    sleep(0.1)
     @test t[:a][] == 15
+
+    v = [1]
+    t = Widget{:test}(Dict(:a => Observable(2), :b => slider(1:100), :c => button()));
+    Widgets.@on t v[1] += $(:b)
+    observe(t, :b)[] = 15
+    sleep(0.1)
+    @test v[1] == 16
+    observe(t, :b)[] = 30
+    sleep(0.1)
+    @test v[1] == 46
 
     d = Widget{:test}(Dict(:a => 1, :b => Observable(2), :c => Widget{:test}(; output = Observable(5))))
     m = d |> @layout :a + :b[]

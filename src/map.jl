@@ -81,8 +81,7 @@ julia> t = Widgets.Widget{:test}(OrderedDict(:a => Observable(2), :b => slider(1
 This updates `t[:a]` as soon as the user moves the slider:
 
 ```jldoctest map
-julia> Widgets.@map! t :a \$(:b)
-Observables.Observable{Int64}("ob_31", 52, Any[])
+julia> Widgets.@map! t :a \$(:b);
 ```
 
 `@map!(target, x)`
