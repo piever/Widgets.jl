@@ -62,6 +62,8 @@ end
 
 function div end
 
+function node end
+
 function defaultlayout(ui::Widget)
     div(values(ui.children)..., ui.display)
 end
