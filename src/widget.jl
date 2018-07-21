@@ -90,7 +90,7 @@ macro widget(args...)
     v = func_body.args
     for (i, line) in enumerate(v)
         if extract_name(line) == Symbol("@auto")
-            expr = auto_helper!(line.args[2])
+            expr = auto_helper!(line.args[2], wrap = true)
             line.head = expr.head
             line.args = expr.args
         end
@@ -120,9 +120,10 @@ macro auto(expr)
     esc(auto_helper!(expr))
 end
 
-function auto_helper!(expr)
+function auto_helper!(expr; wrap = false)
     @assert expr.head == :(=)
     label = name2string(expr.args[1])
+    wrap && (label = Expr(:call, :^, label))
     expr.args[2] = Expr(:call, :(Widgets.widget), expr.args[2], Expr(:kw, :label, label))
     expr
 end
