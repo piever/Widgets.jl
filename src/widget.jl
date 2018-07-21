@@ -105,3 +105,15 @@ macro widget(args...)
         export $func_name
     end |> esc
 end
+
+"""
+`@auto(expr)`
+
+Macro to automatize widget creation within an `@widget` call. Transforms `:x = rhs` into `:x = widget(rhs, label = "x")`.
+"""
+macro auto(expr)
+    @assert expr.head == :(=)
+    label = name2string(expr.args[1])
+    expr.args[2] = Expr(:call, :(Widgets.widget), expr.args[2], Expr(:kw, :label, label))
+    esc(expr)
+end

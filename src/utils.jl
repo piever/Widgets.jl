@@ -88,3 +88,5 @@ macro nodeps(expr)
     qn = quotenode(shortname)
     esc(Expr(:call, :(Widgets.widget), Expr(:call, :Val, qn), expr.args[2:end]...))
 end
+
+name2string(x::Symbol) = Expr(:call, :string, Expr(:quote, x))
