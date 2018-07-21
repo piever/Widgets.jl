@@ -61,9 +61,11 @@ function extract_anonymous_function(x, func, args...)
 end
 
 extract_name(s) = s
+extract_name(s::QuoteNode) = s.value
 function extract_name(expr::Expr)
-    isquotenode(expr) && return expr.args[1]
-    @assert expr.head == :.
+    isquotenode(expr) && return extract_name(expr.args[1])
+    expr.head == :macrocall && return extract_name(expr.args[1])
+    expr.head == :. || return nothing
     extract_name(expr.args[2])
 end
 
@@ -90,3 +92,5 @@ macro nodeps(expr)
 end
 
 name2string(x::Symbol) = Expr(:call, :string, Expr(:quote, x))
+name2string(x::QuoteNode) = Expr(:call, :string, x)
+name2string(x::Expr) = name2string(x.args[end])
