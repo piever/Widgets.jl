@@ -1,5 +1,5 @@
 using Widgets, Observables, DataStructures, InteractBase
-using Widgets: Widget, @layout, @map, @map!, @on
+using Widgets: Widget, @layout, @map, @map!, @on, widgettype
 @static if VERSION < v"0.7.0-DEV.2005"
     using Base.Test
 else
@@ -49,6 +49,7 @@ end
 @widget wdg function myui(x)
     :a = x + 1
     :b = Observable(10)
+    @auto :x = "aa"
     @output!  wdg $(:b) + :a
     @display! wdg "The sum is "*string($(_.output))
     @layout!  wdg _.display
@@ -60,6 +61,9 @@ end
     @test ui[:b][] == 10
     @test ui.output[] == 16
     @test ui.display[] == ui.layout(ui)[] == "The sum is 16"
+    @test widgettype(ui[:x]) == :textbox
+    @test observe(ui[:x])[] == "aa"
+
 
     ui = Widgets.widget(Val(:myui), 5)
     @test ui[:a] == 6
@@ -77,6 +81,12 @@ end
     sleep(0.1)
     @test ui.output[] == 17
     @test ui.display[] == ui.layout(ui)[] == "The sum is 17"
+end
+
+@testset "auto" begin
+    Widgets.@auto x = 10
+    @test observe(x)[] == 10
+    @test widgettype(x) == :spinbox
 end
 
 @testset "pair" begin

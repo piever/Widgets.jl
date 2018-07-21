@@ -89,9 +89,14 @@ macro widget(args...)
     @assert func_body.head == :block
     v = func_body.args
     for (i, line) in enumerate(v)
+        if extract_name(line) == Symbol("@auto")
+            expr = auto_helper!(line.args[2], wrap = true)
+            line.head = expr.head
+            line.args = expr.args
+        end
         if iswidgetassignment(line)
-            line.args[1] = parse_function_call(d, line.args[1], replace_ref)
             line.args[2] = map_helper(d, line.args[2])
+            line.args[1] = parse_function_call(d, line.args[1], replace_ref)
         end
     end
     shortname = extract_name(func_name)
@@ -104,4 +109,21 @@ macro widget(args...)
         Widgets.widget(::Val{$qn}, args...; kwargs...) = $func_name(args...; kwargs...)
         export $func_name
     end |> esc
+end
+
+"""
+`@auto(expr)`
+
+Macro to automatize widget creation within an `@widget` call. Transforms `:x = rhs` into `:x = widget(rhs, label = "x")`.
+"""
+macro auto(expr)
+    esc(auto_helper!(expr))
+end
+
+function auto_helper!(expr; wrap = false)
+    @assert expr.head == :(=)
+    label = name2string(expr.args[1])
+    wrap && (label = Expr(:call, :^, label))
+    expr.args[2] = Expr(:call, :(Widgets.widget), expr.args[2], Expr(:kw, :label, label))
+    expr
 end
