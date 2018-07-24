@@ -5,7 +5,7 @@ abstract type AbstractWidget; end
 mutable struct Widget{T} <: AbstractWidget
     children::OrderedDict{Symbol, Any}
     output::Observable
-    display::Observable
+    display
     scope
     update::Function
     layout::Function

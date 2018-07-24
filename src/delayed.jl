@@ -1,14 +1,15 @@
-function parse_delayed!(syms, d, x::Expr; counter = Ref(0))
+function parse_delayed!(syms, d, x::Expr; counter = Ref(0), takevalue = true)
     if x.head == :$
         sym = x.args[1]
         new_var = get(syms, sym, gensym())
         counter[] += 1
         syms[sym] = Symbol("input$(counter[])")
-        Expr(:call, :getindex, Expr(:call, :(Widgets.observe), Expr(:call, :getindex, d, quotenode(syms[sym]))))
+        obs = Expr(:call, :(Widgets.observe), Expr(:call, :getindex, d, quotenode(syms[sym])))
+        takevalue ? Expr(:call, :getindex, obs) : obs
     elseif x.head == :call && length(x.args) == 2 && x.args[1] == :^
         x.args[2]
     else
-        Expr(x.head, (parse_delayed!(syms, d, arg; counter = counter) for arg in x.args)...)
+        Expr(x.head, (parse_delayed!(syms, d, arg; counter = counter, takevalue = takevalue) for arg in x.args)...)
     end
 end
 
