@@ -15,7 +15,7 @@ end
 `@map(d, x)`
 
 Apply the expression `x` to the widget `d`, replacing e.g. symbol `:s` with the corresponding `Observable` `observe(d[:s])`.
-To use the value of some of `d`'s children, use `:s[]`. Use `\$(:s)` if you want the output to update automatically as soon
+To use the value of some of `d`'s components, use `:s[]`. Use `\$(:s)` if you want the output to update automatically as soon
 as the value of `observe(d[:s])` changes.
 In this context, `_` refers to the whole widget. To use actual symbols, escape them with `^`, as in `^(:a)`.
 
@@ -65,7 +65,7 @@ end
 `@map!(d, target, x)`
 
 In the expression `x` to the widget `d`, replace e.g. symbol `:s` with the corresponding `Observable` `observe(d[:s])`.
-To use the value of some of `d`'s children, use `:s[]`. As soon as one of the symbols wrapped in a `\$` changes value, the observable
+To use the value of some of `d`'s components, use `:s[]`. As soon as one of the symbols wrapped in a `\$` changes value, the observable
 target gets updated with the value of that expression. If no symbol is wrapped in a `\$`, nothing happens.
 In this context, `_` refers to the whole widget. To use actual symbols, escape them with `^`, as in `^(:a)`.
 
