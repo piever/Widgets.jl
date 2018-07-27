@@ -64,7 +64,7 @@ function div end
 
 node(::AbstractWidget) = nothing
 
-node(w::Widget) = w.node
+node(w::Widget) = w.scope !== nothing ? w.scope.dom : nothing
 
 function defaultlayout(ui::Widget)
     div(values(ui.children)..., ui.display)
@@ -74,3 +74,5 @@ function layout(w::Wiget, f)
     g = w.layout
     Widget(w, layout = x -> f(g(x)))
 end
+
+(w::Widget)(args...; kwargs...) = layout(w, t->t(args...; kwargs...))
