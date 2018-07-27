@@ -67,7 +67,7 @@ node(::AbstractWidget) = nothing
 node(w::Widget) = w.scope !== nothing ? w.scope.dom : nothing
 
 function defaultlayout(ui::Widget)
-    div(values(ui.children)..., ui.display)
+    div(values(components(ui))..., ui.display)
 end
 
 """

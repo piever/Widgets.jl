@@ -22,7 +22,7 @@ mutable struct Widget{T} <: AbstractWidget
 end
 
 function Widget{T}(w::Widget; kwargs...) where {T}
-    n = Widget{T}(w.children)
+    n = Widget{T}(components(w))
     dict = Dict(kwargs)
     for field in fieldnames(Widget)
         val = get(dict, field, getfield(w, field))
@@ -39,18 +39,20 @@ component(x, u) = getindex(x, u)
 component(x::Observable, u) = unwrap(map(t -> component(t, u), x))
 component(x, args...) = foldl(component, x, args)
 
+components(w::Widget) = w.children
+
 observe(x) = x
 observe(u::Widget) = u.output
 observe(o::Observable) = o[] isa Widget ? unwrap(map(observe, o)) : o
 observe(args...) = observe(component(args...))
 
-_getindex(ui::Widget, i::Symbol) = get(ui.children, i, nothing)
+_getindex(ui::Widget, i::Symbol) = get(components(ui), i, nothing)
 
 function Base.getindex(ui::Widget, i::Symbol)
     val = _getindex(ui, i)
     val === nothing || return val
 
-    for (key, el) in ui.children
+    for (key, el) in components(ui)
         if el isa Widget
             val = getindex(el, i)
             val === nothing || return val
@@ -60,7 +62,7 @@ function Base.getindex(ui::Widget, i::Symbol)
 end
 
 Base.getindex(ui::Widget, i::AbstractString) = getindex(ui, Symbol(i))
-Base.setindex!(ui::Widget, val, i::Symbol) = setindex!(ui.children, val, i)
+Base.setindex!(ui::Widget, val, i::Symbol) = setindex!(components(ui), val, i)
 Base.setindex!(ui::Widget, val, i::AbstractString) = setindex!(ui, val, Symbol(i))
 
 replace_ref(s) = s
