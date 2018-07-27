@@ -70,9 +70,9 @@ function defaultlayout(ui::Widget)
     div(values(ui.children)..., ui.display)
 end
 
-function layout(w::Widget, f)
+function layout(f, w::Widget)
     g = w.layout
     Widget(w, layout = x -> f(g(x)))
 end
 
-(w::Widget)(args...; kwargs...) = layout(w, t->t(args...; kwargs...))
+(w::Widget)(args...; kwargs...) = layout(t->t(args...; kwargs...), w)
