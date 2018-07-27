@@ -31,6 +31,8 @@ function Widget{T}(w::Widget; kwargs...) where {T}
     n
 end
 
+Widget(w::Widget{T}; kwargs...) where {T} = Widget{T}(w; kwargs...)
+
 widgettype(::Widget{T}) where {T} = T
 
 component(x, u) = getindex(x, u)
