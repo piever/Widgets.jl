@@ -6,18 +6,20 @@ mutable struct Widget{T} <: AbstractWidget
     children::OrderedDict{Symbol, Any}
     output::Observable
     display::Observable
+    node
     scope
     update::Function
     layout::Function
     function Widget{T}(children = OrderedDict{Symbol, Any}();
         output = Observable{Any}(nothing),
         display = Observable{Any}(nothing),
+        node = nothing,
         scope = nothing,
         update = t -> (),
         layout = defaultlayout) where {T}
 
         child_dict = OrderedDict{Symbol, Any}(Symbol(key) => val for (key, val) in children)
-        new{T}(child_dict, output, display, scope, update, layout)
+        new{T}(child_dict, output, display, node, scope, update, layout)
     end
 end
 

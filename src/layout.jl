@@ -62,8 +62,15 @@ end
 
 function div end
 
-function node end
+node(::AbstractWidget) = nothing
+
+node(w::Widget) = w.node
 
 function defaultlayout(ui::Widget)
     div(values(ui.children)..., ui.display)
+end
+
+function layout(w::Wiget, f)
+    g = w.layout
+    Widget(w, layout = x -> f(g(x)))
 end
