@@ -1,4 +1,4 @@
-using Widgets, Observables, DataStructures, InteractBase
+using Widgets, Observables, DataStructures, InteractBase, WebIO
 using Widgets: Widget, @layout, @map, @map!, @on, widgettype
 @static if VERSION < v"0.7.0-DEV.2005"
     using Base.Test
@@ -109,4 +109,12 @@ end
     obs[] = Observable(11)
     sleep(0.1)
     @test o2[] == 11
+end
+
+@testset "layout" begin
+    wdg = slider(1:100)
+    wdg2 = wdg(style = Dict("color" => "red"))
+    n = WebIO.render(wdg2)
+    @test props(n)[:style]["color"] == "red"
+    @test Widgets.node(wdg) isa Node
 end

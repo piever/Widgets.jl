@@ -62,8 +62,33 @@ end
 
 function div end
 
-function node end
+node(::AbstractWidget) = nothing
+
+node(w::Widget) = w.scope !== nothing ? w.scope.dom : nothing
 
 function defaultlayout(ui::Widget)
     div(values(ui.children)..., ui.display)
 end
+
+"""
+`layout(f, w::Widget)`
+
+Create a new `Widget` that is a copy of `w` and whose layout is the layout of `w` composed
+with the function `f`.
+
+## Examples
+
+```julia
+using InteractBase, CSSUtil, Widgets
+w = button("OK")
+Widgets.layout(w) do t
+    hbox("Click here", t)
+end
+```
+"""
+function layout(f, w::Widget)
+    g = w.layout
+    Widget(w, layout = x -> f(g(x)))
+end
+
+(w::Widget)(args...; kwargs...) = layout(t->t(args...; kwargs...), w)
