@@ -131,3 +131,6 @@ function auto_helper!(expr; wrap = false)
     expr.args[2] = Expr(:call, :(Widgets.widget), expr.args[2], Expr(:kw, :label, label))
     expr
 end
+
+# Placeholder for the input function, to define input widgets.
+function input end
