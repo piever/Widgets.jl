@@ -1,9 +1,10 @@
 # Widgets
 
 [![Build Status](https://travis-ci.org/piever/Widgets.jl.svg?branch=master)](https://travis-ci.org/piever/Widgets.jl)
+[![](https://img.shields.io/badge/docs-latest-blue.svg)](https://juliagizmos.github.io/Interact.jl/latest/custom_widgets.html)
 [![codecov.io](http://codecov.io/github/piever/Widgets.jl/coverage.svg?branch=master)](http://codecov.io/github/piever/Widgets.jl?branch=master)
 
-This package allows to create custom widgets using the JuliaGizmos packages and should be used in combination with InteractBase.
+This package allows to create custom widgets using the JuliaGizmos packages and should be used in combination with the Interact package. Documentation is available [here](https://juliagizmos.github.io/Interact.jl/latest/custom_widgets.html) as part of the Interact docs.
 
 To create a custom widget use statement of the type `:a = ...` to add a child. You can refer to the child value elsewhere in the recipe using `:a`. `:a` will represent an `Observable`, you can either access it's value with `:a[]` or
 ```julia
