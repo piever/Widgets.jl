@@ -107,7 +107,7 @@ macro widget(args...)
     qn = quotenode(shortname)
     pushfirst!(v, :($d = Widgets.Widget{$qn}()))
     push!(v, d)
-    (shortname == :widget) && return esc(func_call)
+    (shortname == :widget) && return esc(:(Base.@__doc__ $func_call))
     quote
         Base.@__doc__ $func_call
         Widgets.widget(::Val{$qn}, args...; kwargs...) = $func_name(args...; kwargs...)
