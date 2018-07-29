@@ -35,6 +35,8 @@ Widget(w::Widget{T}; kwargs...) where {T} = Widget{T}(w; kwargs...)
 
 widgettype(::Widget{T}) where {T} = T
 
+scope(w::Widget) = w.scope
+
 component(x, u) = getindex(x, u)
 component(x::Observable, u) = unwrap(map(t -> component(t, u), x))
 component(x, args...) = foldl(component, x, args)
