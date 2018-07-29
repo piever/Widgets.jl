@@ -109,7 +109,7 @@ macro widget(args...)
     push!(v, d)
     (shortname == :widget) && return esc(func_call)
     quote
-        $func_call
+        Base.@__doc__ $func_call
         Widgets.widget(::Val{$qn}, args...; kwargs...) = $func_name(args...; kwargs...)
         export $func_name
     end |> esc
