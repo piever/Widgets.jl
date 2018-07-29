@@ -64,6 +64,11 @@ function div end
 
 node(::AbstractWidget) = nothing
 
+"""
+`node(w::Widget)`
+
+Return primary node for widget `w`
+"""
 node(w::Widget) = w.scope !== nothing ? w.scope.dom : nothing
 
 function defaultlayout(ui::Widget)

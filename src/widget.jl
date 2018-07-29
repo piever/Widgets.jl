@@ -35,7 +35,22 @@ Widget(w::Widget{T}; kwargs...) where {T} = Widget{T}(w; kwargs...)
 
 widgettype(::Widget{T}) where {T} = T
 
+"""
+`scope(w::Widget)`
+
+Return primary scope for widget `w` if it exists, `nothing` otherwise.
+"""
 scope(w::Widget) = w.scope
+
+"""
+`scope!(w::Widget, sc)`
+
+sets up a primary scope `sc` for widget `w`
+"""
+function scope!(w::Widget, sc)
+    w.scope = sc
+    w
+end
 
 component(x, u) = getindex(x, u)
 component(x::Observable, u) = unwrap(map(t -> component(t, u), x))
