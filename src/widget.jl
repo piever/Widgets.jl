@@ -40,11 +40,12 @@ end
 
 Widget(w::Widget{T}; kwargs...) where {T} = Widget{T}(w; kwargs...)
 
-function Widget(children=[]; output::Widget{T}=Widget{:default}()) where {T}
-    Widget{T}(children; output = output)
+function Widget(children=OrderedDict{Symbol, Any}(); output=nothing, kwargs...)
+    Widget{widgettype(output)}(children; output = output)
 end
 
 widgettype(::Widget{T}) where {T} = T
+widgettype(::Any) = :default
 
 """
 `scope(w::Widget)`
