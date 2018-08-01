@@ -3,3 +3,4 @@ julia 0.6
 Observables
 DataStructures
 Compat
+MacroTools

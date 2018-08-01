@@ -2,7 +2,7 @@ __precompile__()
 
 module Widgets
 
-using Observables, DataStructures, Compat
+using Observables, DataStructures, Compat, MacroTools
 
 import Observables: off, on, Observable
 
@@ -17,5 +17,6 @@ include("observablepair.jl")
 include("output.jl")
 include("delayed.jl")
 include("compose.jl")
+include("apply.jl")
 
 end # module
