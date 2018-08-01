@@ -1,3 +1,5 @@
+function widget end
+
 abstract type AbstractWidget; end
 
 mutable struct Widget{T} <: AbstractWidget
@@ -30,10 +32,6 @@ function Widget{T}(w::Widget; kwargs...) where {T}
 end
 
 Widget(w::Widget{T}; kwargs...) where {T} = Widget{T}(w; kwargs...)
-
-function widget(w::Widget{T}; kwargs...) where T
-    Widget{T}(kwargs; output = w.output, display = w)
-end
 
 widgettype(::Widget{T}) where {T} = T
 

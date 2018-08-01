@@ -17,5 +17,6 @@ include("observablepair.jl")
 include("output.jl")
 include("delayed.jl")
 include("compose.jl")
+include("ui.jl")
 
 end # module
