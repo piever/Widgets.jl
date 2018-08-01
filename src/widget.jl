@@ -10,13 +10,20 @@ mutable struct Widget{T} <: AbstractWidget
     update::Function
     layout::Function
     function Widget{T}(children = OrderedDict{Symbol, Any}();
-        output = Observable{Any}(nothing),
-        display = output,
+        output = nothing,
+        display = nothing,
         scope = nothing,
         update = t -> (),
         layout = defaultlayout) where {T}
 
         child_dict = OrderedDict{Symbol, Any}(Symbol(key) => val for (key, val) in children)
+        if output === nothing
+            output = Observable{Any}(nothing)
+        elseif output isa Widget
+            display = output
+            output = observe(output)
+        end
+        (display === nothing) && (display = output)
         new{T}(child_dict, output, display, scope, update, layout)
     end
 end
@@ -32,6 +39,10 @@ function Widget{T}(w::Widget; kwargs...) where {T}
 end
 
 Widget(w::Widget{T}; kwargs...) where {T} = Widget{T}(w; kwargs...)
+
+function Widget(children=[]; output::Widget{T}=Widget{:default}()) where {T}
+    Widget{T}(children; output = output)
+end
 
 widgettype(::Widget{T}) where {T} = T
 

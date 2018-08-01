@@ -6,7 +6,7 @@ using Observables, DataStructures, Compat
 
 import Observables: off, on, Observable
 
-export widget, @widget, @layout!, @output!, @display!, @on, @map!, node, scope, scope!
+export Widget, widget, @widget, @layout!, @output!, @display!, @on, @map!, node, scope, scope!
 
 include("widget.jl")
 include("utils.jl")
@@ -17,6 +17,5 @@ include("observablepair.jl")
 include("output.jl")
 include("delayed.jl")
 include("compose.jl")
-include("ui.jl")
 
 end # module
