@@ -37,16 +37,15 @@ end
 
 Widget(w::Widget{T}; kwargs...) where {T} = Widget{T}(w; kwargs...)
 
-widget() = Observable{Any}(Widget{:default}())
+widget() = Observable{Any}(Widget{:empty}())
 
 function widget(f::Function, w; init = Observable{Any}(f(observe(w)[])), kwargs...)
-    Widget{:default}(; output = map!(f, init, observe(w)), kwargs...)
+    Widget{:output}(; output = map!(f, init, observe(w)), kwargs...)
 end
 
 widget(f::Function; kwargs...) = w -> widget(f, w; kwargs...)
 
 widgettype(::Widget{T}) where {T} = T
-widgettype(::Any) = :default
 
 """
 `scope(w::Widget)`
