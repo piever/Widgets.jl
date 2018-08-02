@@ -55,9 +55,22 @@ julia> t = Widgets.Widget{:test}(OrderedDict(:b => slider(1:100), :c => button()
 julia> @layout! t hbox(:b, CSSUtil.hskip(1em), :c);
 ```
 """
-macro layout!(d, x)
+macro layout!(args...)
+    esc(layout!_helper(args...))
+end
+
+function layout!_helper(d, x)
     func = layout_helper(x)
-    esc(:($d.layout = $func))
+    quote
+        $d.layout = $func
+        $d
+    end
+end
+
+function layout!_helper(x)
+    d = gensym()
+    res = layout!_helper(d, x)
+    :($d -> $res)
 end
 
 function div end
