@@ -40,6 +40,7 @@ Widget(w::Widget{T}; kwargs...) where {T} = Widget{T}(w; kwargs...)
 widget() = Observable{Any}(Widget{:empty}())
 
 function widget(f::Function, w; init = Observable{Any}(f(observe(w)[])), kwargs...)
+    (init isa Observable) || (init = Observable{Any}(init))
     Widget{:output}(; output = map!(f, init, observe(w)), kwargs...)
 end
 
