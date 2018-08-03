@@ -36,3 +36,7 @@ function unwrap(obs::Observable)
     end
     obs2
 end
+
+Base.start(s::ObservablePair) = 1
+Base.next(s::ObservablePair, i) = i == 1 ? (s.first, 2) : (s.second, 3)
+Base.done(s::ObservablePair, i) = i >= 3
