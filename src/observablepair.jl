@@ -5,16 +5,20 @@ struct ObservablePair{S, T}
     g
     first2second
     second2first
-    function ObservablePair(first::Observable{S}, second::Observable{T}; f = identity, g = identity) where {S, T}
+    excluded::Vector{<:Function}
+    function ObservablePair(first::Observable{S}, second::Observable{T}; f = identity, g = identity, force = false) where {S, T}
+        excluded = Function[]
         first2second = on(first) do val
             fval = f(val)
-            (second[] == fval) || Observables.setexcludinghandlers(second, fval, x -> x !== g)
+            (force || second[] != fval) && Observables.setexcludinghandlers(second, fval, x -> !(x in excluded))
         end
+        push!(excluded, first2second)
         second2first = on(second) do val
             gval = g(val)
-            (first[] == gval) || Observables.setexcludinghandlers(first, gval, x -> x !== f)
+            (force || first[] != gval) && Observables.setexcludinghandlers(first, gval, x -> !(x in excluded))
         end
-        new{S, T}(first, second, f, g, first2second, second2first)
+        push!(excluded, second2first)
+        new{S, T}(first, second, f, g, first2second, second2first, excluded)
     end
 end
 
