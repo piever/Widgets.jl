@@ -1,10 +1,6 @@
 using Widgets, Observables, DataStructures, InteractBase, WebIO
 using Widgets: Widget, @layout, @map, @map!, @on, widgettype
-@static if VERSION < v"0.7.0-DEV.2005"
-    using Base.Test
-else
-    using Test
-end
+using Test
 
 @testset "utils" begin
     d = Widget{:test}(Dict(:a => 1, :b => Observable(2), :c => Widget{:test}(; output = Observable(5))))

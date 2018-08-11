@@ -2,7 +2,7 @@ __precompile__()
 
 module Widgets
 
-using Observables, DataStructures, Compat
+using Observables, DataStructures
 
 import Observables: off, on, Observable
 
