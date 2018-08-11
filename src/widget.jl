@@ -67,7 +67,7 @@ end
 
 component(x, u) = getindex(x, u)
 component(x::Observable, u) = unwrap(map(t -> component(t, u), x))
-component(x, args...) = foldl(component, x, args)
+component(x, args...) = foldl(component, args, init = x)
 
 components(w::Widget) = w.children
 
@@ -97,7 +97,7 @@ Base.setindex!(ui::Widget, val, i::AbstractString) = setindex!(ui, val, Symbol(i
 
 replace_ref(s) = s
 
-replace_ref(d, x...) = foldl((a,b) -> Expr(:ref, a, b), d, x)
+replace_ref(d, x...) = foldl((a,b) -> Expr(:ref, a, b), x, init = d)
 
 """
 `@widget(wdgname, func_call)`
