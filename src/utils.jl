@@ -1,12 +1,7 @@
-isquotenode(::Any) = false
-isquotenode(x::Expr) = x.head == :quote
+isquotenode(x) = false
 isquotenode(x::QuoteNode) = true
 
-@static if VERSION < v"0.7.0-DEV.2005"
-    quotenode(x) = Expr(:quote, x)
-else
-    quotenode(x) = QuoteNode(x)
-end
+quotenode(x) = QuoteNode(x)
 
 iswidget(x) = isquotenode(x) || x in [Expr(:., :_, quotenode(:output)), Expr(:., :_, quotenode(:display))]
 iswidgettuple(x) = false
