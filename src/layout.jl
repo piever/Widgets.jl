@@ -105,8 +105,17 @@ end
 ```
 """
 function layout(f, w::Widget)
-    g = w.layout
+    g = layout(w)
     Widget(w, layout = x -> f(g(x)))
+end
+
+"""
+`layout(w::Widget)`
+
+Return the function that will be used to determine the layout of widget `w`.
+"""
+function layout(w::Widget)
+    w.layout
 end
 
 (w::Widget)(args...; kwargs...) = layout(t->t(args...; kwargs...), w)
