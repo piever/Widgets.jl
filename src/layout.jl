@@ -73,7 +73,7 @@ function layout!_helper(x)
     :($d -> $res)
 end
 
-function div end
+div(args...; kwargs...) = node(:div, args...; kwargs...)
 
 node(::AbstractWidget) = nothing
 
