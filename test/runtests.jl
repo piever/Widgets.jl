@@ -1,29 +1,23 @@
 using Widgets, Observables, DataStructures#, InteractBase, WebIO
-using Widgets: Widget, @layout, @map, @map!, @on, widgettype
+using Widgets: Widget, @layout, widgettype
 import Widgets: observe
 using Test
 
 @testset "utils" begin
     d = Widget{:test}(Dict(:a => 1, :b => Observable(2), :c => Widget{:test}(; output = Observable(5))))
-    m = @map d :a + :b[] + :c[]
-    n = @map d :a + $(:b) + :c[]
+    m = d[:a] + d[:b][] + d[:c][]
+    n = Observables.@map d[:a] + &d[:b] + d[:c][]
     @test m == 8
     @test n[] == 8
     d[:b][] = 3
     sleep(0.1)
     @test m == 8
     @test n[] == 9
-    @test isa(d |> @map(:c), Observable)
-
-    t = Widget{:test}(Dict(:a => Observable(2), :b => Observable(50)));
-    Widgets.@map! t :a $(:b)
-    observe(t, :b)[] = 15
-    sleep(0.1)
-    @test t[:a][] == 15
+    @test isa(Observables.@map(&d[:c]), Observable)
 
     v = [1]
     t = Widget{:test}(Dict(:a => Observable(2), :b => Observable(50)));
-    Widgets.@on t v[1] += $(:b)
+    Observables.@on v[1] += &t[:b]
     observe(t, :b)[] = 15
     sleep(0.1)
     @test v[1] == 16
@@ -43,14 +37,21 @@ using Test
     @test isa(@layout(d, :c), Widget)
 end
 
-@widget wdg function myui(x)
-    :a = x + 1
-    :b = Observable(10)
+function myui(x)
+    a = x + 1
+    b = Observable(10)
+    output = Observables.@map &b + a
+    display = Observables.@map "The sum is "*string(&output)
     # @auto :x = "aa"
-    @output!  wdg $(:b) + :a
-    @display! wdg "The sum is "*string($(_.output))
-    @layout!  wdg _.display
+    Widget{:myui}(
+        ["a" => a, "b" => b],
+        output = output,
+        display = display,
+        layout = t -> t.display
+    )
 end
+
+Widgets.widget(::Val{:myui}, args...; kwargs...) = myui(args...; kwargs...)
 
 @testset "widget" begin
     ui = myui(5)

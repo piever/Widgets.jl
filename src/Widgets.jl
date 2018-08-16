@@ -6,14 +6,11 @@ using Observables, DataStructures
 
 import Observables: off, on, Observable, AbstractObservable
 
-export Widget, widget, @widget, @layout!, @output!, @display!, @on, @map!, node, scope, scope!
+export Widget, widget, @widget, @layout!, node, scope, scope!
 
 include("widget.jl")
 include("utils.jl")
 include("layout.jl")
-include("map.jl")
-include("on.jl")
 include("observablepair.jl")
-include("output.jl")
 
 end # module
