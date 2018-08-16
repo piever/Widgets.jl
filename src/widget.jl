@@ -5,13 +5,10 @@ abstract type AbstractWidget{T, S} <: AbstractObservable{S}; end
 mutable struct Widget{T, S} <: AbstractWidget{T, S}
     children::OrderedDict{Symbol, Any}
     output::Observable{S}
-    display
     scope
-    update::Function
     layout::Function
     function Widget{T}(children = OrderedDict{Symbol, Any}();
         output::Observable{S} = Observable{Any}(nothing),
-        display = output,
         scope = nothing,
         update = t -> (),
         layout = defaultlayout) where {T, S}
@@ -21,7 +18,7 @@ mutable struct Widget{T, S} <: AbstractWidget{T, S}
         end
 
         child_dict = OrderedDict{Symbol, Any}(Symbol(key) => val for (key, val) in children)
-        new{T, S}(child_dict, output, display, scope, update, layout)
+        new{T, S}(child_dict, output, scope, layout)
     end
 end
 

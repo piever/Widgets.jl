@@ -41,13 +41,11 @@ function myui(x)
     a = x + 1
     b = Observable(10)
     output = Observables.@map &b + a
-    display = Observables.@map "The sum is "*string(&output)
     # @auto :x = "aa"
     Widget{:myui}(
         ["a" => a, "b" => b],
         output = output,
-        display = display,
-        layout = t -> t.display
+        layout = t -> Observables.@map "The sum is "*string(&t)
     )
 end
 
@@ -58,7 +56,7 @@ Widgets.widget(::Val{:myui}, args...; kwargs...) = myui(args...; kwargs...)
     @test ui[:a] == 6
     @test ui[:b][] == 10
     @test ui.output[] == 16
-    @test ui.display[] == ui.layout(ui)[] == "The sum is 16"
+    @test ui.layout(ui)[] == "The sum is 16"
     # @test widgettype(ui[:x]) == :textbox
     # @test observe(ui[:x])[] == "aa"
 
@@ -67,18 +65,18 @@ Widgets.widget(::Val{:myui}, args...; kwargs...) = myui(args...; kwargs...)
     @test ui[:a] == 6
     @test ui[:b][] == 10
     @test ui.output[] == 16
-    @test ui.display[] == ui.layout(ui)[] == "The sum is 16"
+    @test ui.layout(ui)[] == "The sum is 16"
 
     ui = Widgets.@nodeps myui(5)
     @test ui[:a] == 6
     @test ui[:b][] == 10
     @test ui.output[] == 16
-    @test ui.display[] == ui.layout(ui)[] == "The sum is 16"
+    @test ui.layout(ui)[] == "The sum is 16"
 
     ui[:b][] = 11
     sleep(0.1)
     @test ui.output[] == 17
-    @test ui.display[] == ui.layout(ui)[] == "The sum is 17"
+    @test ui.layout(ui)[] == "The sum is 17"
 end
 
 # @testset "auto" begin
