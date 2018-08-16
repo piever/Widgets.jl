@@ -115,3 +115,10 @@ end
 #     @test props(n)[:style]["color"] == "red"
 #     @test Widgets.node(wdg) isa Node
 # end
+
+@testset "observable" begin
+    t = Widget{:test}(Dict(:a => Observable(2), :b => Observable(50)), output = Observable(12));
+    s = map(x->x-1, t)
+    @test t[] == 12
+    @test s[] == 11
+end
