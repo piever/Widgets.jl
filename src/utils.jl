@@ -28,8 +28,6 @@ function parse_function_call!(syms, d, x::Expr, func, args...)
         func(d, x, args...)
     elseif x.head == :call && length(x.args) == 2 && x.args[1] == :^
         x.args[2]
-    elseif x.head == :& && length(x.args) == 1
-        return parse_function_call!(syms, d, x.args[1], func, args...)
     elseif iswidgettuple(x)
         return parse_function_call!(syms, d, x.args[1], func, x.args[2:end]..., args...)
     else

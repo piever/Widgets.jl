@@ -33,7 +33,7 @@ using Test
 
     d = Widget{:test}(Dict(:a => 1, :b => Observable(2), :c => Widget{:test}(; output = Observable(5))))
     m = d |> @layout :a + :b[]
-    n = d |> @layout :a + $(:b)
+    n = d |> @layout Observables.@map :a + &(:b)
     @test m == 3
     @test n[] == 3
     d[:b][] = 3
