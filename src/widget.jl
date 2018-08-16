@@ -115,6 +115,7 @@ It also overloads the `widget` function with the following signature:
 `Widgets.widget(::Val{Symbol(func_name)}, args...; kwargs..) = func_name(args...; kwargs...)`
 """
 macro widget(args...)
+    Base.depwarn("Widgets.@widget is deprecated", "widget")
     @assert 1 <= length(args) <= 2
     func_call = args[end]
     d = length(args) == 2 ? args[1] : gensym(:widget)
