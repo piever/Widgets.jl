@@ -24,7 +24,7 @@ macro layout(args...)
 end
 
 function layout_helper(d, expr)
-    parse_function_call(d, expr, replace_wdg)
+    parse_layout_call(d, expr, replace_wdg)
 end
 
 function layout_helper(expr)
@@ -112,5 +112,7 @@ Return the function that will be used to determine the layout of widget `w`.
 function layout(w::Widget)
     w.layout
 end
+
+layout!(f, w::Widget) = (w.layout = f; w)
 
 (w::Widget)(args...; kwargs...) = layout(t->t(args...; kwargs...), w)

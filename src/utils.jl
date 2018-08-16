@@ -5,7 +5,7 @@ quotenode(x) = QuoteNode(x)
 
 iswidget(x) = isquotenode(x) || x in [Expr(:., :_, quotenode(:output)), Expr(:., :_, quotenode(:display))]
 iswidgettuple(x) = false
-iswidgettuple(x::Expr) = x.head == :tuple && all(isquotenode, x.args)
+iswidgettuple(x::Expr) = x.head == :tuple && all(isquotenode, x.args) && length(x.args) > 0
 
 iswidgetassignment(x) = false
 
@@ -14,6 +14,7 @@ function iswidgetassignment(expr::Expr)
     iswidget(expr.args[1])
 end
 
+## parse_function_call is only called by deprecated functions and will be removed
 parse_function_call(d, x, func, args...) = parse_function_call!(OrderedDict(), d, x, func, args...)
 
 function parse_function_call!(syms, d, x::Expr, func, args...)
@@ -36,6 +37,30 @@ function parse_function_call!(syms, d, x::Expr, func, args...)
 end
 
 function parse_function_call!(syms, d, x, func, args...)
+    if isquotenode(x)
+        func(d, x, args...)
+    elseif x == :(_)
+        func(d, args...)
+    else
+        x
+    end
+end
+
+parse_layout_call(d, x, func, args...) = parse_layout_call!(OrderedDict(), d, x, func, args...)
+
+function parse_layout_call!(syms, d, x::Expr, func, args...)
+    if x.head == :. && length(x.args) == 2 && isquotenode(x.args[2])
+        Expr(x.head, parse_layout_call!(syms, d, x.args[1], func, args...), x.args[2])
+    elseif x.head == :call && length(x.args) == 2 && x.args[1] == :^
+        x.args[2]
+    elseif iswidgettuple(x)
+        return parse_layout_call!(syms, d, x.args[1], func, x.args[2:end]..., args...)
+    else
+        Expr(x.head, (parse_layout_call!(syms, d, arg, func, args...) for arg in x.args)...)
+    end
+end
+
+function parse_layout_call!(syms, d, x, func, args...)
     if isquotenode(x)
         func(d, x, args...)
     elseif x == :(_)
