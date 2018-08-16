@@ -46,6 +46,7 @@ Observables.Observable{Int64}("ob_33", 52, Any[])
 Curried version of `@map(d, x)`: anonymous function mapping `d` to `@map(d, x)`.
 """
 macro map(args...)
+    Base.depwarn("Widgets.@map is deprecated", "map")
     esc(map_helper(args...))
 end
 
@@ -88,6 +89,7 @@ julia> Widgets.@map! t :a \$(:b);
 Curried version of `@map!(d, target, x)`: anonymous function mapping `d` to `@map(d, target, x)`.
 """
 macro map!(args...)
+    Base.depwarn("Widgets.@map! is deprecated", "map!")
     esc(map!_helper(args...))
 end
 

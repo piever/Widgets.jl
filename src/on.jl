@@ -37,5 +37,6 @@ julia> Widgets.@on t println(\$(:b));
 Curried version of `@on(d, x)`: anonymous function mapping `d` to `@on(d, x)`.
 """
 macro on(args...)
+    Base.depwarn("Widgets.@on is deprecated", "on")
     esc(on_helper(args...))
 end
