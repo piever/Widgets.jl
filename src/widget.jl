@@ -3,21 +3,17 @@ function widget end
 abstract type AbstractWidget{T, S} <: AbstractObservable{S}; end
 
 mutable struct Widget{T, S} <: AbstractWidget{T, S}
-    children::OrderedDict{Symbol, Any}
+    components::OrderedDict{Symbol, Any}
     output::Observable{S}
     scope
     layout::Function
-    function Widget{T}(children = OrderedDict{Symbol, Any}();
+    function Widget{T}(components = OrderedDict{Symbol, Any}();
         output::Observable{S} = Observable{Any}(nothing),
         scope = nothing,
         update = t -> (),
         layout = defaultlayout) where {T, S}
 
-        if Observables._val(output) isa Widget
-            output = observe(output)
-        end
-
-        child_dict = OrderedDict{Symbol, Any}(Symbol(key) => val for (key, val) in children)
+        child_dict = OrderedDict{Symbol, Any}(Symbol(key) => val for (key, val) in components)
         new{T, S}(child_dict, output, scope, layout)
     end
 end
@@ -63,16 +59,12 @@ function scope!(w::Widget, sc)
 end
 
 component(x, u) = getindex(x, u)
-component(x::Observable, u) = unwrap(map(t -> component(t, u), x))
 component(x, args...) = foldl(component, args, init = x)
 
-components(w::Widget) = w.children
+components(w::Widget) = w.components
 
-observe(x) = x
+observe(u::Widget, args...) = observe(component(u, args...))
 observe(u::Widget) = u.output
-observe(o::Observable) = o[] isa Widget ? unwrap(map(observe, o)) : o
-observe(args...) = observe(component(args...))
-Observables.observe(u::Widget) = u.output
 
 _getindex(ui::Widget, i::Symbol) = get(components(ui), i, nothing)
 
