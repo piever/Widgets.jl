@@ -33,7 +33,7 @@ using Test
 
     d = Widget{:test}(Dict(:a => 1, :b => Observable(2), :c => Widget{:test}(; output = Observable(5))))
     m = d |> @layout :a + :b[]
-    n = d |> @layout :a + $(:b)
+    n = d |> @layout Observables.@map :a + &(:b)
     @test m == 3
     @test n[] == 3
     d[:b][] = 3
@@ -115,3 +115,10 @@ end
 #     @test props(n)[:style]["color"] == "red"
 #     @test Widgets.node(wdg) isa Node
 # end
+
+@testset "observable" begin
+    t = Widget{:test}(Dict(:a => Observable(2), :b => Observable(50)), output = Observable(12));
+    s = map(x->x-1, t)
+    @test t[] == 12
+    @test s[] == 11
+end

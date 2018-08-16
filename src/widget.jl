@@ -1,27 +1,27 @@
 function widget end
 
-abstract type AbstractWidget; end
+abstract type AbstractWidget{T, S} <: AbstractObservable{S}; end
 
-mutable struct Widget{T} <: AbstractWidget
+mutable struct Widget{T, S} <: AbstractWidget{T, S}
     children::OrderedDict{Symbol, Any}
-    output::Observable
+    output::Observable{S}
     display
     scope
     update::Function
     layout::Function
     function Widget{T}(children = OrderedDict{Symbol, Any}();
-        output = Observable{Any}(nothing),
+        output::Observable{S} = Observable{Any}(nothing),
         display = output,
         scope = nothing,
         update = t -> (),
-        layout = defaultlayout) where {T}
+        layout = defaultlayout) where {T, S}
 
         if Observables._val(output) isa Widget
             output = observe(output)
         end
 
         child_dict = OrderedDict{Symbol, Any}(Symbol(key) => val for (key, val) in children)
-        new{T}(child_dict, output, display, scope, update, layout)
+        new{T, S}(child_dict, output, display, scope, update, layout)
     end
 end
 
@@ -75,6 +75,7 @@ observe(x) = x
 observe(u::Widget) = u.output
 observe(o::Observable) = o[] isa Widget ? unwrap(map(observe, o)) : o
 observe(args...) = observe(component(args...))
+Observables.observe(u::Widget) = u.output
 
 _getindex(ui::Widget, i::Symbol) = get(components(ui), i, nothing)
 
@@ -114,6 +115,7 @@ It also overloads the `widget` function with the following signature:
 `Widgets.widget(::Val{Symbol(func_name)}, args...; kwargs..) = func_name(args...; kwargs...)`
 """
 macro widget(args...)
+    Base.depwarn("Widgets.@widget is deprecated", "widget")
     @assert 1 <= length(args) <= 2
     func_call = args[end]
     d = length(args) == 2 ? args[1] : gensym(:widget)

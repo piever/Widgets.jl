@@ -24,12 +24,7 @@ macro layout(args...)
 end
 
 function layout_helper(d, expr)
-    syms = OrderedDict()
-    res = parse_function_call!(syms, d, expr, replace_wdg)
-    isempty(syms) && return res
-    func = Expr(:(->), Expr(:tuple, values(syms)...), res)
-    observs = (Expr(:call, :(Widgets.observe), key) for key in keys(syms))
-    Expr(:call, :map, func, observs...)
+    parse_layout_call(d, expr, replace_wdg)
 end
 
 function layout_helper(expr)
@@ -117,5 +112,7 @@ Return the function that will be used to determine the layout of widget `w`.
 function layout(w::Widget)
     w.layout
 end
+
+layout!(f, w::Widget) = (w.layout = f; w)
 
 (w::Widget)(args...; kwargs...) = layout(t->t(args...; kwargs...), w)
