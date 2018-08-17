@@ -4,11 +4,11 @@ abstract type AbstractWidget{T, S} <: AbstractObservable{S}; end
 
 mutable struct Widget{T, S} <: AbstractWidget{T, S}
     components::OrderedDict{Symbol, Any}
-    output::Observable{S}
+    output::AbstractObservable{S}
     scope
     layout::Function
     function Widget{T}(components = OrderedDict{Symbol, Any}();
-        output::Observable{S} = Observable{Any}(nothing),
+        output::AbstractObservable{S} = Observable{Any}(nothing),
         scope = nothing,
         update = t -> (),
         layout = defaultlayout) where {T, S}
@@ -39,7 +39,7 @@ end
 
 widget(f::Function; kwargs...) = w -> widget(f, w; kwargs...)
 
-widgettype(::Widget{T}) where {T} = T
+widgettype(::AbstractWidget{T}) where {T} = T
 
 """
 `scope(w::Widget)`
