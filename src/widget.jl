@@ -88,16 +88,15 @@ Base.setindex!(ui::Widget, val, i::AbstractString) = setindex!(ui, val, Symbol(i
 """
 `@auto(expr)`
 
-Macro to automatize widget creation within an `@widget` call. Transforms `:x = rhs` into `:x = widget(rhs, label = "x")`.
+Macro to automatize widget creation within an `@widget` call. Transforms `x = rhs` into `x = widget(rhs, label = "x")`.
 """
 macro auto(expr)
     esc(auto_helper!(expr))
 end
 
-function auto_helper!(expr; wrap = false)
+function auto_helper!(expr)
     @assert expr.head == :(=)
     label = name2string(expr.args[1])
-    wrap && (label = Expr(:call, :^, label))
     expr.args[2] = Expr(:call, :(Widgets.widget), expr.args[2], Expr(:kw, :label, label))
     expr
 end
