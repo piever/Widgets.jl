@@ -7,7 +7,7 @@ mutable struct Widget{T, S} <: AbstractWidget{T, S}
     output::AbstractObservable{S}
     scope
     layout::Function
-    function Widget{T}(components = OrderedDict{Symbol, Any}();
+    function Widget{T}(components;
         output::AbstractObservable{S} = Observable{Any}(nothing),
         scope = nothing,
         update = t -> (),
@@ -18,23 +18,21 @@ mutable struct Widget{T, S} <: AbstractWidget{T, S}
     end
 end
 
+Widget{T}(; components = OrderedDict{Symbol, Any}(), kwargs...) where {T} = Widget{T}(components; kwargs...)
+
 function Widget{T}(w::Widget; kwargs...) where {T}
-    n = Widget{T}(components(w))
-    dict = Dict(kwargs)
+    dict = Dict{Symbol, Any}(kwargs)
     for field in fieldnames(Widget)
-        val = get(dict, field, getfield(w, field))
-        setfield!(n, field, val)
+        get!(dict, field, getfield(w, field))
     end
-    n
+    Widget{T}(; dict...)
 end
 
 Widget(w::Widget{T}; kwargs...) where {T} = Widget{T}(w; kwargs...)
+Widget(args...; kwargs...) = Widget{:default}(args...; kwargs...)
 
-widget() = Observable{Any}(Widget{:empty}())
-
-function widget(f::Function, w; init = Observable{Any}(f(observe(w)[])), kwargs...)
-    (init isa Observable) || (init = Observable{Any}(init))
-    Widget{:output}(; output = map!(f, init, observe(w)), kwargs...)
+function widget(f::Function, args...; init = f(map(Observable._val, args)...), kwargs...)
+    Widget{:output}(; output = map(f, args...; init = init), kwargs...)
 end
 
 widget(f::Function; kwargs...) = w -> widget(f, w; kwargs...)
