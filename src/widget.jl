@@ -3,50 +3,41 @@ function widget end
 abstract type AbstractWidget{T, S} <: AbstractObservable{S}; end
 
 mutable struct Widget{T, S} <: AbstractWidget{T, S}
-    children::OrderedDict{Symbol, Any}
-    output::Observable{S}
-    display
+    components::OrderedDict{Symbol, Any}
+    output::AbstractObservable{S}
     scope
-    update::Function
     layout::Function
-    function Widget{T}(children = OrderedDict{Symbol, Any}();
-        output::Observable{S} = Observable{Any}(nothing),
-        display = output,
+    function Widget{T}(components;
+        output::AbstractObservable{S} = Observable{Any}(nothing),
         scope = nothing,
         update = t -> (),
         layout = defaultlayout) where {T, S}
 
-        if Observables._val(output) isa Widget
-            output = observe(output)
-        end
-
-        child_dict = OrderedDict{Symbol, Any}(Symbol(key) => val for (key, val) in children)
-        new{T, S}(child_dict, output, display, scope, update, layout)
+        child_dict = OrderedDict{Symbol, Any}(Symbol(key) => val for (key, val) in components)
+        new{T, S}(child_dict, output, scope, layout)
     end
 end
 
+Widget{T}(; components = OrderedDict{Symbol, Any}(), kwargs...) where {T} = Widget{T}(components; kwargs...)
+
 function Widget{T}(w::Widget; kwargs...) where {T}
-    n = Widget{T}(components(w))
-    dict = Dict(kwargs)
+    dict = Dict{Symbol, Any}(kwargs)
     for field in fieldnames(Widget)
-        val = get(dict, field, getfield(w, field))
-        setfield!(n, field, val)
+        get!(dict, field, getfield(w, field))
     end
-    n
+    Widget{T}(; dict...)
 end
 
 Widget(w::Widget{T}; kwargs...) where {T} = Widget{T}(w; kwargs...)
+Widget(args...; kwargs...) = Widget{:default}(args...; kwargs...)
 
-widget() = Observable{Any}(Widget{:empty}())
-
-function widget(f::Function, w; init = Observable{Any}(f(observe(w)[])), kwargs...)
-    (init isa Observable) || (init = Observable{Any}(init))
-    Widget{:output}(; output = map!(f, init, observe(w)), kwargs...)
+function widget(f::Function, args...; init = f(map(Observable._val, args)...), kwargs...)
+    Widget{:output}(; output = map(f, args...; init = init), kwargs...)
 end
 
 widget(f::Function; kwargs...) = w -> widget(f, w; kwargs...)
 
-widgettype(::Widget{T}) where {T} = T
+widgettype(::AbstractWidget{T}) where {T} = T
 
 """
 `scope(w::Widget)`
@@ -66,16 +57,12 @@ function scope!(w::Widget, sc)
 end
 
 component(x, u) = getindex(x, u)
-component(x::Observable, u) = unwrap(map(t -> component(t, u), x))
 component(x, args...) = foldl(component, args, init = x)
 
-components(w::Widget) = w.children
+components(w::Widget) = w.components
 
-observe(x) = x
+observe(u::Widget, args...) = observe(component(u, args...))
 observe(u::Widget) = u.output
-observe(o::Observable) = o[] isa Widget ? unwrap(map(observe, o)) : o
-observe(args...) = observe(component(args...))
-Observables.observe(u::Widget) = u.output
 
 _getindex(ui::Widget, i::Symbol) = get(components(ui), i, nothing)
 
@@ -96,70 +83,18 @@ Base.getindex(ui::Widget, i::AbstractString) = getindex(ui, Symbol(i))
 Base.setindex!(ui::Widget, val, i::Symbol) = setindex!(components(ui), val, i)
 Base.setindex!(ui::Widget, val, i::AbstractString) = setindex!(ui, val, Symbol(i))
 
-replace_ref(s) = s
-
-replace_ref(d, x...) = foldl((a,b) -> Expr(:ref, a, b), x, init = d)
-
-"""
-`@widget(wdgname, func_call)`
-
-Special macro to create "recipes" for custom widgets. The `@widget` macro takes to argument, a variable
-name `wdgname` and a function call `func_call`. The function call is changed by the macro in several ways:
-- an extra line is added at the beginning to initiliaze a variable called `wdgname::Widget` that can be used to refer to the widget in the function body
-- all lines of the type `sym::Symbol = expr` are replaced with `wdgname[sym] = @map(wdgname, expr)`, see [`Widgets.@map`](@ref) for more details
-- an extra line is added at the end to return `wdgname`
-
-The macro then registers the function `func_call` and exports it.
-It also overloads the `widget` function with the following signature:
-
-`Widgets.widget(::Val{Symbol(func_name)}, args...; kwargs..) = func_name(args...; kwargs...)`
-"""
-macro widget(args...)
-    Base.depwarn("Widgets.@widget is deprecated", "widget")
-    @assert 1 <= length(args) <= 2
-    func_call = args[end]
-    d = length(args) == 2 ? args[1] : gensym(:widget)
-    func_call.head == :function || error("@widget accepts only function definitions")
-    func_signature, func_body = func_call.args
-    func_name = func_signature.args[1]
-    @assert func_body.head == :block
-    v = func_body.args
-    for (i, line) in enumerate(v)
-        if extract_name(line) == Symbol("@auto")
-            expr = auto_helper!(line.args[2], wrap = true)
-            line.head = expr.head
-            line.args = expr.args
-        end
-        if iswidgetassignment(line)
-            line.args[2] = map_helper(d, line.args[2])
-            line.args[1] = parse_function_call(d, line.args[1], replace_ref)
-        end
-    end
-    shortname = extract_name(func_name)
-    qn = quotenode(shortname)
-    pushfirst!(v, :($d = Widgets.Widget{$qn}()))
-    push!(v, d)
-    (shortname == :widget) && return esc(:(Base.@__doc__ $func_call))
-    quote
-        Base.@__doc__ $func_call
-        Widgets.widget(::Val{$qn}, args...; kwargs...) = $func_name(args...; kwargs...)
-        export $func_name
-    end |> esc
-end
-
 """
 `@auto(expr)`
 
-Macro to automatize widget creation within an `@widget` call. Transforms `:x = rhs` into `:x = widget(rhs, label = "x")`.
+Macro to automatize widget creation within an `@widget` call. Transforms `x = rhs` into `x = widget(rhs, label = "x")`.
 """
 macro auto(expr)
     esc(auto_helper!(expr))
 end
 
-function auto_helper!(expr; wrap = false)
+function auto_helper!(expr)
     @assert expr.head == :(=)
     label = name2string(expr.args[1])
-    wrap && (label = Expr(:call, :^, label))
     expr.args[2] = Expr(:call, :(Widgets.widget), expr.args[2], Expr(:kw, :label, label))
     expr
 end
