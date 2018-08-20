@@ -2,17 +2,21 @@
 `@layout(d, x)`
 
 Apply the expression `x` to the widget `d`, replacing e.g. symbol `:s` with the corresponding subwidget `d[:s]`
-To create a layout that updates automatically as some `Widget` or `Observable` updates, use `\$(:s)`.
 In this context, `_` refers to the whole widget. To use actual symbols, escape them with `^`, as in `^(:a)`.
+`@layout` can be combined with `@map` to have the layout update interactively as function of some widget.
 
 ## Examples
 
 ```jldoctest layout
 julia> using DataStructures, InteractBase, CSSUtil
 
-julia> t = Widgets.Widget{:test}(OrderedDict(:vertical => Observable(true), :b => slider(1:100), :c => button()));
+julia> cp = [:vertical => Observable(true), :b => slider(1:100), :c => button()]
 
-julia> Widgets.@layout t $(:vertical) ? vbox(:b, CSSUtil.vskip(1em), :c) : hbox(:b, CSSUtil.hskip(1em), :c);
+julia> t = Widgets.Widget{:test}(cp, output = observe(cp[:b]));
+
+julia> Widgets.@layout t vbox(:b, CSSUtil.vskip(1em), :c);
+
+julia> Widgets.@layout t Widgets.@map &(:vertical) ? vbox(:b, CSSUtil.vskip(1em), :c) : hbox(:b, CSSUtil.hskip(1em), :c);
 ```
 
 `@layout(x)`
