@@ -10,13 +10,13 @@ In this context, `_` refers to the whole widget. To use actual symbols, escape t
 ```jldoctest layout
 julia> using DataStructures, InteractBase, CSSUtil
 
-julia> cp = [:vertical => Observable(true), :b => slider(1:100), :c => button()]
+julia> cpt = OrderedDict(:vertical => Observable(true), :b => slider(1:100), :c => button());
 
-julia> t = Widgets.Widget{:test}(cp, output = observe(cp[:b]));
+julia> t = Widgets.Widget{:test}(cpt, output = observe(cpt[:b]));
 
-julia> Widgets.@layout t vbox(:b, CSSUtil.vskip(1em), :c);
+julia> Widgets.@layout! t vbox(:b, CSSUtil.vskip(1em), :c);
 
-julia> Widgets.@layout t Widgets.@map &(:vertical) ? vbox(:b, CSSUtil.vskip(1em), :c) : hbox(:b, CSSUtil.hskip(1em), :c);
+julia> Widgets.@layout! t Widgets.@map &(:vertical) ? vbox(:b, CSSUtil.vskip(1em), :c) : hbox(:b, CSSUtil.hskip(1em), :c);
 ```
 
 `@layout(x)`
