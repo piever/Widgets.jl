@@ -14,8 +14,14 @@ julia> cpt = OrderedDict(:vertical => Observable(true), :b => slider(1:100), :c 
 
 julia> t = Widgets.Widget{:test}(cpt, output = observe(cpt[:b]));
 
-julia> Widgets.@layout! t vbox(:b, CSSUtil.vskip(1em), :c);
+julia> Widgets.@layout t vbox(:b, CSSUtil.vskip(1em), :c);
 
+julia> Widgets.@layout t Widgets.@map &(:vertical) ? vbox(:b, CSSUtil.vskip(1em), :c) : hbox(:b, CSSUtil.hskip(1em), :c);
+```
+
+Use [`Widgets.@layout!`](@ref) to set the widget layout in place:
+
+```jldoctest
 julia> Widgets.@layout! t Widgets.@map &(:vertical) ? vbox(:b, CSSUtil.vskip(1em), :c) : hbox(:b, CSSUtil.hskip(1em), :c);
 ```
 
