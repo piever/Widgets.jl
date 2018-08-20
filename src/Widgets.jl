@@ -4,7 +4,7 @@ module Widgets
 
 using Observables, DataStructures
 
-import Observables: off, on, Observable, AbstractObservable, observe, ObservablePair
+import Observables: off, on, Observable, AbstractObservable, observe, ObservablePair, @map, @map!, @on
 
 export Widget, widget, @layout!, node, scope, scope!
 
