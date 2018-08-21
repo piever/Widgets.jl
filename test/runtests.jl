@@ -1,6 +1,6 @@
-using Widgets, Observables, DataStructures#, InteractBase, WebIO
+using Widgets, Observables, DataStructures, InteractBase, WebIO
 using Widgets: Widget, @layout, widgettype
-import Widgets: observe
+import Widgets: observe, @auto
 using Test
 
 @testset "utils" begin
@@ -41,9 +41,9 @@ function myui(x)
     a = x + 1
     b = Observable(10)
     output = Observables.@map &b + a
-    # @auto :x = "aa"
+    @auto x = "aa"
     Widget{:myui}(
-        ["a" => a, "b" => b],
+        ["a" => a, "b" => b, "x" => x],
         output = output,
         layout = t -> Observables.@map "The sum is "*string(&t)
     )
@@ -57,8 +57,8 @@ Widgets.widget(::Val{:myui}, args...; kwargs...) = myui(args...; kwargs...)
     @test ui[:b][] == 10
     @test ui.output[] == 16
     @test ui.layout(ui)[] == "The sum is 16"
-    # @test widgettype(ui[:x]) == :textbox
-    # @test observe(ui[:x])[] == "aa"
+    @test widgettype(ui[:x]) == :textbox
+    @test observe(ui[:x])[] == "aa"
 
 
     ui = Widgets.widget(Val(:myui), 5)
@@ -79,19 +79,19 @@ Widgets.widget(::Val{:myui}, args...; kwargs...) = myui(args...; kwargs...)
     @test ui.layout(ui)[] == "The sum is 17"
 end
 
-# @testset "auto" begin
-#     Widgets.@auto x = 10
-#     @test observe(x)[] == 10
-#     @test widgettype(x) == :spinbox
-# end
+@testset "auto" begin
+    @auto x = 10
+    @test observe(x)[] == 10
+    @test widgettype(x) == :spinbox
+end
 
-# @testset "layout" begin
-#     wdg = slider(1:100)
-#     wdg2 = wdg(style = Dict("color" => "red"))
-#     n = WebIO.render(wdg2)
-#     @test props(n)[:style]["color"] == "red"
-#     @test Widgets.node(wdg) isa Node
-# end
+@testset "layout" begin
+    wdg = slider(1:100)
+    wdg2 = wdg(style = Dict("color" => "red"))
+    n = WebIO.render(wdg2)
+    @test props(n)[:style]["color"] == "red"
+    @test Widgets.node(wdg) isa Node
+end
 
 @testset "observable" begin
     t = Widget{:test}(Dict(:a => Observable(2), :b => Observable(50)), output = Observable(12));
