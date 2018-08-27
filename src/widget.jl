@@ -86,7 +86,7 @@ Base.setindex!(ui::Widget, val, i::AbstractString) = setindex!(ui, val, Symbol(i
 """
 `@auto(expr)`
 
-Macro to automatize widget creation within an `@widget` call. Transforms `x = rhs` into `x = widget(rhs, label = "x")`.
+Macro to automatize widget creation. Transforms `x = rhs` into `x = widget(rhs, label = "x")`.
 """
 macro auto(expr)
     esc(auto_helper!(expr))
