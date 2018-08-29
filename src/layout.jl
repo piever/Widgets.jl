@@ -8,7 +8,7 @@ In this context, `_` refers to the whole widget. To use actual symbols, escape t
 ## Examples
 
 ```jldoctest layout
-julia> using DataStructures, InteractBase, CSSUtil
+julia> using Interact
 
 julia> cpt = OrderedDict(:vertical => Observable(true), :b => slider(1:100), :c => button());
 
@@ -53,7 +53,7 @@ Set `d.layout` to match the result of `Widgets.@layout(x)`. See [`Widgets.@layou
 ## Examples
 
 ```jldoctest map
-julia> using DataStructures, InteractBase, CSSUtil
+julia> using Interact
 
 julia> t = Widgets.Widget{:test}(OrderedDict(:b => slider(1:100), :c => button()));
 
