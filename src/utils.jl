@@ -47,9 +47,10 @@ For example, InteractBase defines `dropwdown` recipe. To use `dropdown` in a rec
 without depending on InteractBase, wrap the `dropdown` call in the `@nodeps` macro:
 
 ```julia
-@widget wdg function myrecipe(i)
-    :label = "My recipe"
-    :dropdown = Widgets.@nodeps dropdown(i)
+function myrecipe(i)
+    label = "My recipe"
+    wdg = Widgets.@nodeps dropdown(i)
+    Widget(["label" => label, "dropdown" => wdg])
 end
 ```
 """
