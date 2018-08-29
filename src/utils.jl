@@ -48,8 +48,9 @@ without depending on InteractBase, wrap the `dropdown` call in the `@nodeps` mac
 
 ```julia
 function myrecipe(i)
-    :label = "My recipe"
-    :dropdown = Widgets.@nodeps dropdown(i)
+    label = "My recipe"
+    wdg = Widgets.@nodeps dropdown(i)
+    Widget(["label" => label, "dropdown" => wdg])
 end
 ```
 """
