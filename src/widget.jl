@@ -7,16 +7,17 @@ mutable struct Widget{T, S} <: AbstractWidget{T, S}
     output::AbstractObservable{S}
     scope
     layout::Function
-    function Widget{T}(components;
+    function Widget{T}(components::OrderedDict{Symbol, Any};
         output::AbstractObservable{S} = Observable{Any}(nothing),
         scope = nothing,
         update = t -> (),
         layout = defaultlayout) where {T, S}
 
-        child_dict = OrderedDict{Symbol, Any}(Symbol(key) => val for (key, val) in components)
-        new{T, S}(child_dict, output, scope, layout)
+        new{T, S}(components, output, scope, layout)
     end
 end
+
+Widget{T}(components; kwargs...) where {T} = Widget{T}(OrderedDict{Symbol, Any}(Symbol(key) => val for (key, val) in components); kwargs...)
 
 Widget{T}(; components = OrderedDict{Symbol, Any}(), kwargs...) where {T} = Widget{T}(components; kwargs...)
 
