@@ -12,17 +12,17 @@ julia> using Interact
 
 julia> cpt = OrderedDict(:vertical => Observable(true), :b => slider(1:100), :c => button());
 
-julia> t = Widgets.Widget{:test}(cpt, output = observe(cpt[:b]));
+julia> t = Widget{:test}(cpt, output = observe(cpt[:b]));
 
 julia> Widgets.@layout t vbox(:b, CSSUtil.vskip(1em), :c);
 
 julia> Widgets.@layout t Widgets.@map &(:vertical) ? vbox(:b, CSSUtil.vskip(1em), :c) : hbox(:b, CSSUtil.hskip(1em), :c);
 ```
 
-Use [`Widgets.@layout!`](@ref) to set the widget layout in place:
+Use [`@layout!`](@ref) to set the widget layout in place:
 
 ```jldoctest
-julia> Widgets.@layout! t Widgets.@map &(:vertical) ? vbox(:b, CSSUtil.vskip(1em), :c) : hbox(:b, CSSUtil.hskip(1em), :c);
+julia> @layout! t Widgets.@map &(:vertical) ? vbox(:b, CSSUtil.vskip(1em), :c) : hbox(:b, CSSUtil.hskip(1em), :c);
 ```
 
 `@layout(x)`
@@ -55,7 +55,7 @@ Set `d.layout` to match the result of `Widgets.@layout(x)`. See [`Widgets.@layou
 ```jldoctest map
 julia> using Interact
 
-julia> t = Widgets.Widget{:test}(OrderedDict(:b => slider(1:100), :c => button()));
+julia> t = Widget{:test}(OrderedDict(:b => slider(1:100), :c => button()));
 
 julia> @layout! t hbox(:b, CSSUtil.hskip(1em), :c);
 ```
