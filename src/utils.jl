@@ -39,6 +39,9 @@ function extract_name(expr::Expr)
     extract_name(expr.args[2])
 end
 
+isparameters(::Any) = false
+isparameters(x::Expr) = x.head == :parameters
+
 """
 `@nodeps(expr)`
 
@@ -59,7 +62,12 @@ macro nodeps(expr)
     @assert expr.head == :call
     shortname = extract_name(expr.args[1])
     qn = quotenode(shortname)
-    esc(Expr(:call, :(Widgets.widget), Expr(:call, :Val, qn), expr.args[2:end]...))
+    args = expr.args[2:end]
+    if length(args) > 0 && isparameters(args[1])
+        esc(Expr(:call, :(Widgets.widget), args[1], Expr(:call, :Val, qn), args[2:end]...))
+    else
+        esc(Expr(:call, :(Widgets.widget), Expr(:call, :Val, qn), args...))
+    end
 end
 
 name2string(x::Symbol) = Expr(:call, :string, Expr(:quote, x))
