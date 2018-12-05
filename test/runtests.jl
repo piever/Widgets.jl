@@ -1,4 +1,4 @@
-using Widgets, Observables, DataStructures, InteractBase, WebIO
+using Widgets, Observables, OrderedCollections, InteractBase, WebIO
 using Widgets: Widget, @layout, widgettype
 import Widgets: observe, @auto
 using Test

@@ -1,8 +1,6 @@
-__precompile__()
-
 module Widgets
 
-using Observables, DataStructures
+using Observables, OrderedCollections
 
 import Observables: off, on, Observable, AbstractObservable, observe, ObservablePair, @map, @map!, @on
 
