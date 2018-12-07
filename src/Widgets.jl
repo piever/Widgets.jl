@@ -9,5 +9,6 @@ export Widget, widget, @layout!, node, scope, scope!
 include("widget.jl")
 include("utils.jl")
 include("layout.jl")
+include("widget_placeholder.jl")
 
 end # module
