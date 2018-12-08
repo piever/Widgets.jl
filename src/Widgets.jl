@@ -1,6 +1,7 @@
 module Widgets
 
 using Observables, OrderedCollections
+using Dates
 
 import Observables: off, on, Observable, AbstractObservable, observe, ObservablePair, @map, @map!, @on
 

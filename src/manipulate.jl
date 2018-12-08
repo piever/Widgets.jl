@@ -121,7 +121,7 @@ function widget end
 
 widget(x; kwargs...) = x
 widget(x::Observable; label = nothing) =
-    label === nothing ? x : Widget{:observable}(["label" => label], output = x, layout = t -> flex_row(t["label"], t.output))
+    label === nothing ? x : Widget{:observable}(["label" => label], output = x, layout = t -> div(t["label"], t.output))
 widget(x::AbstractRange; kwargs...) = slider(x; kwargs...)
 widget(x::AbstractVector; kwargs...) = togglebuttons(x; kwargs...)
 widget(x::AbstractVector{<:Real}; kwargs...) = slider(x; kwargs...)
