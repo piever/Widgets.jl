@@ -14,5 +14,6 @@ include("layout.jl")
 include("backend.jl")
 include("defaults.jl")
 include("manipulate.jl")
+include("modifiers.jl")
 
 end # module
