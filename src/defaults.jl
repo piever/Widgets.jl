@@ -5,7 +5,7 @@ for op in [:filepicker, :datepicker, :colorpicker, :timepicker, :spinbox,
            :wdglabel, :latex, :alert, :highlight, :notifications, :mask, :tooltip!, :confirm]
     @eval begin
         function $op(args...; kwargs...)
-            length(args) > 0 && args[1] isa WidgetTheme &&
+            length(args) > 0 && args[1] isa AbstractBackend &&
                 error("Function " * string($op) * " was about to overflow: check the signature")
             $op(get_backend(), args...; kwargs...)
         end
