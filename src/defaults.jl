@@ -2,7 +2,7 @@ for op in [:filepicker, :datepicker, :colorpicker, :timepicker, :spinbox,
            :autocomplete, :input, :dropdown, :checkbox, :toggle, :togglecontent,
            :textbox, :textarea, :button, :slider, :rangeslider, :rangepicker, :entry,
            :radiobuttons, :checkboxes, :toggles, :togglebuttons, :tabs, :tabulator, :accordion,
-           :wdglabel]
+           :wdglabel, :latex, :alert, :highlight, :notifications, :mask, :tooltip!, :confirm]
     @eval begin
         function $op(args...; kwargs...)
             length(args) > 0 && args[1] isa WidgetTheme &&
