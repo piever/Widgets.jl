@@ -2,6 +2,7 @@ module Widgets
 
 using Observables, OrderedCollections
 using Dates
+using Colors: Colorant
 
 import Observables: off, on, Observable, AbstractObservable, observe, ObservablePair, @map, @map!, @on
 
