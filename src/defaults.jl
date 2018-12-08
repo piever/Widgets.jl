@@ -7,7 +7,7 @@ for op in [:filepicker, :datepicker, :colorpicker, :timepicker, :spinbox,
         function $op(args...; kwargs...)
             length(args) > 0 && args[1] isa WidgetTheme &&
                 error("Function " * string($op) * " was about to overflow: check the signature")
-            $op(gettheme(), args...; kwargs...)
+            $op(get_backend(), args...; kwargs...)
         end
 
         widget(::Val{$(Expr(:quote, op))}, args...; kwargs...) = $op(args...; kwargs...)
