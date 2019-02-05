@@ -13,3 +13,5 @@ for op in [:filepicker, :datepicker, :colorpicker, :timepicker, :spinbox,
         widget(::Val{$(Expr(:quote, op))}, args...; kwargs...) = $op(args...; kwargs...)
     end
 end
+
+widget(x::Observable; label = nothing) = widget(get_backend(), x; label = label)
