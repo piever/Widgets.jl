@@ -101,3 +101,9 @@ end
 
 # Placeholder for the input function, to define input widgets.
 function input end
+
+render(w::Widget) = w.layout(w)
+
+Base.show(io::IO, x::Widget) = show(io, render(x))
+Base.show(io::IO, m::MIME"text/html", x::Widget) = show(io, m, render(x))
+Base.display(w::Widget) = display(render(w))
