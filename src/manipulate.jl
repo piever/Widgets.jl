@@ -12,15 +12,17 @@ function make_widget(binding)
 end
 
 function map_block(block, symbols, throttle = nothing)
+    block = esc(block)
+    symbols = map(esc, symbols)
     lambda = Expr(:(->), Expr(:tuple, symbols...),
                   block)
     f = gensym()
 
-    get_obs(wdg, throttle::Nothing = nothing) = :(observe($wdg))
-    get_obs(wdg, throttle) = :(InteractBase.throttle($throttle, $(get_obs(wdg))))
+    get_obs(wdg, throttle::Nothing = nothing) = wdg
+    get_obs(wdg, throttle) = :(Observables.throttle($(esc(throttle)), $(wdg)))
     quote
         $f = $lambda
-        map($f, $(get_obs.(symbols, throttle)...))
+        map($f, $((get_obs(symbol, throttle) for symbol in symbols)...))
     end
 end
 
@@ -87,7 +89,7 @@ macro manipulate(args...)
     dict = Expr(:call, :OrderedDict, widgets...)
     quote
         local children = $dict
-        local output = $(esc(map_block(block, syms, throttle)))
+        local output = $(map_block(block, syms, throttle))
         local layout = manipulatelayout(get_backend())
         Widget{:manipulate}(children, output=output, layout=layout)
     end
