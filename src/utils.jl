@@ -75,3 +75,6 @@ name2string(x::QuoteNode) = Expr(:call, :string, x)
 name2string(x::Expr) = name2string(x.args[end])
 
 isijulia() = isdefined(Main, :IJulia) && Main.IJulia.inited
+
+to_abstractobservable(s::AbstractObservable) = s
+to_abstractobservable(s) = Observable(s)

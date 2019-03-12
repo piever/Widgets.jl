@@ -8,11 +8,12 @@ mutable struct Widget{T, S} <: AbstractWidget{T, S}
     scope
     layout::Function
     function Widget{T}(components::OrderedDict{Symbol, Any};
-        output::AbstractObservable{S} = Observable{Any}(nothing),
+        output = Observable{Any}(nothing),
         scope = nothing,
         layout = defaultlayout(get_backend())) where {T, S}
 
-        new{T, S}(components, output, scope, layout)
+        output_obs = to_abstractobservable(output)
+        new{T, eltype(output_obs)}(components, to_abstractobservable(output), scope, layout)
     end
 end
 
