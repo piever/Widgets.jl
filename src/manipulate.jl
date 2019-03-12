@@ -1,5 +1,5 @@
-function manipulatelayout(T::AbstractBackend)
-    error("No default layout for backend $T")
+function manipulatelayout(backend::AbstractBackend)
+    defaultlayout(backend)
 end
 
 function make_widget(binding)
