@@ -89,15 +89,24 @@ Base.setindex!(ui::Widget, val, i::AbstractString) = setindex!(ui, val, Symbol(i
 
 Macro to automatize widget creation. Transforms `x = rhs` into `x = widget(rhs, label = "x")`.
 """
-macro auto(expr)
-    esc(auto_helper!(expr))
+macro auto(args...)
+    esc(auto_helper!(args...))
 end
 
-function auto_helper!(expr)
-    @assert expr.head == :(=)
-    label = name2string(expr.args[1])
-    expr.args[2] = Expr(:call, :(Widgets.widget), expr.args[2], Expr(:kw, :label, label))
-    expr
+function auto_helper!(exprs...)
+    res = Any[]
+    dict = gensym()
+    push!(res, :($dict = Widgets.OrderedDict{Symbol, Any}()))
+    for expr in exprs
+        @assert expr.head == :(=)
+        var = expr.args[1]
+        label = name2string(var)
+        expr.args[2] = Expr(:call, :(Widgets.widget), expr.args[2], Expr(:kw, :label, label))
+        push!(res, expr)
+        push!(res, :($dict[$(Expr(:quote, var))] = $var))
+    end
+    push!(res, dict) 
+    Expr(:block, res...)
 end
 
 # Placeholder for the input function, to define input widgets.

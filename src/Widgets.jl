@@ -4,6 +4,7 @@ using Observables, OrderedCollections
 using Dates
 using Colors: Colorant
 
+import OrderedCollections: OrderedDict
 import Observables: off, on, Observable, AbstractObservable, observe, ObservablePair, @map, @map!, @on
 
 export Widget, widget, @layout!, node, scope, scope!
