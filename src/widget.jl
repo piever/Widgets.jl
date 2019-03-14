@@ -93,7 +93,15 @@ macro auto(args...)
     esc(auto_helper!(args...))
 end
 
-function auto_helper!(exprs...)
+function _block2args(args...)
+    length(args) == 1 || return args
+    arg = args[1]
+    isa(arg, Expr) && (arg.head == :block) || return (arg,)
+    return Tuple(Iterators.filter(t -> !isa(t, LineNumberNode), arg.args))
+end
+
+function auto_helper!(args...)
+    exprs = _block2args(args...)
     res = Any[]
     dict = gensym()
     push!(res, :($dict = Widgets.OrderedDict{Symbol, Any}()))
