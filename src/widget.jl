@@ -85,9 +85,18 @@ Base.setindex!(ui::Widget, val, i::Symbol) = setindex!(components(ui), val, i)
 Base.setindex!(ui::Widget, val, i::AbstractString) = setindex!(ui, val, Symbol(i))
 
 """
-`@auto(expr)`
+`@auto(exprs...)`
 
-Macro to automatize widget creation. Transforms `x = rhs` into `x = widget(rhs, label = "x")`.
+Macro to automatize widget creation. Transform `x = rhs` into `x = widget(rhs, label = "x")`.
+Return an `OrderedDict` of widgets, which can be used as `components` in a `Widget` object.
+
+## Examples
+
+```julia
+julia> wdgs = Widgets.@auto a = 1:100 b = 12
+
+julia> Widget(wdgs, output = map(+, a, b))
+```
 """
 macro auto(args...)
     esc(auto_helper!(args...))
