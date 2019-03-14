@@ -15,3 +15,8 @@ for op in [:filepicker, :datepicker, :colorpicker, :timepicker, :spinbox,
 end
 
 widget(x::Observable; label = nothing) = widget(get_backend(), x; label = label)
+
+function defaultlayout(::AbstractBackend)
+    ui -> div(values(components(ui))..., observe(ui))
+end
+

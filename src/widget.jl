@@ -8,11 +8,12 @@ mutable struct Widget{T, S} <: AbstractWidget{T, S}
     scope
     layout::Function
     function Widget{T}(components::OrderedDict{Symbol, Any};
-        output::AbstractObservable{S} = Observable{Any}(nothing),
+        output = Observable{Any}(nothing),
         scope = nothing,
-        layout = defaultlayout) where {T, S}
+        layout = defaultlayout(get_backend())) where {T, S}
 
-        new{T, S}(components, output, scope, layout)
+        output_obs = to_abstractobservable(output)
+        new{T, eltype(output_obs)}(components, to_abstractobservable(output), scope, layout)
     end
 end
 
@@ -84,19 +85,45 @@ Base.setindex!(ui::Widget, val, i::Symbol) = setindex!(components(ui), val, i)
 Base.setindex!(ui::Widget, val, i::AbstractString) = setindex!(ui, val, Symbol(i))
 
 """
-`@auto(expr)`
+`@auto(exprs...)`
 
-Macro to automatize widget creation. Transforms `x = rhs` into `x = widget(rhs, label = "x")`.
+Macro to automatize widget creation. Transform `x = rhs` into `x = widget(rhs, label = "x")`.
+Return an `OrderedDict` of widgets, which can be used as `components` in a `Widget` object.
+
+## Examples
+
+```julia
+julia> wdgs = Widgets.@auto a = 1:100 b = 12
+
+julia> Widget(wdgs, output = map(+, a, b))
+```
 """
-macro auto(expr)
-    esc(auto_helper!(expr))
+macro auto(args...)
+    esc(auto_helper!(args...))
 end
 
-function auto_helper!(expr)
-    @assert expr.head == :(=)
-    label = name2string(expr.args[1])
-    expr.args[2] = Expr(:call, :(Widgets.widget), expr.args[2], Expr(:kw, :label, label))
-    expr
+function _block2args(args...)
+    length(args) == 1 || return args
+    arg = args[1]
+    isa(arg, Expr) && (arg.head == :block) || return (arg,)
+    return Tuple(Iterators.filter(t -> !isa(t, LineNumberNode), arg.args))
+end
+
+function auto_helper!(args...)
+    exprs = _block2args(args...)
+    res = Any[]
+    dict = gensym()
+    push!(res, :($dict = Widgets.OrderedDict{Symbol, Any}()))
+    for expr in exprs
+        @assert expr.head == :(=)
+        var = expr.args[1]
+        label = name2string(var)
+        expr.args[2] = Expr(:call, :(Widgets.widget), expr.args[2], Expr(:kw, :label, label))
+        push!(res, expr)
+        push!(res, :($dict[$(Expr(:quote, var))] = $var))
+    end
+    push!(res, dict) 
+    Expr(:block, res...)
 end
 
 # Placeholder for the input function, to define input widgets.

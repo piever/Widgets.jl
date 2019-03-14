@@ -91,10 +91,6 @@ node(w::Widget) = w.scope !== nothing ? w.scope.dom : nothing
 
 function slap_design! end
 
-function defaultlayout(ui::Widget)
-    div(values(components(ui))..., observe(ui))
-end
-
 """
 `layout(f, w::Widget)`
 
