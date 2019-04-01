@@ -45,6 +45,8 @@ isparameters(x::Expr) = x.head == :parameters
 """
 `@nodeps(expr)`
 
+`@nodeps` is deprecated. Simply use e.g. `Widgets.dropdown(x)` instead of `Widgets.@nodeps dropdown(x)`.
+
 Macro to remove need to depend on package X that defines a recipe to use it in one's own recipe.
 For example, InteractBase defines `dropwdown` recipe. To use `dropdown` in a recipe in a package,
 without depending on InteractBase, wrap the `dropdown` call in the `@nodeps` macro:
@@ -58,6 +60,7 @@ end
 ```
 """
 macro nodeps(expr)
+    @warn "`@nodeps` is deprecated. Simply use e.g. `Widgets.dropdown(x)` instead of `Widgets.@nodeps dropdown(x)`."
     @assert expr isa Expr
     @assert expr.head == :call
     shortname = extract_name(expr.args[1])
