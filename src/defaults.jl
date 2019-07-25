@@ -57,6 +57,7 @@ widget(x::AbstractRange; kwargs...) = slider(x; kwargs...)
 widget(x::AbstractVector; kwargs...) = togglebuttons(x; kwargs...)
 widget(x::AbstractVector{<:Real}; kwargs...) = slider(x; kwargs...)
 widget(x::AbstractVector{Bool}; kwargs...) = togglebuttons(x; kwargs...)
+widget(x::Tuple; kwargs...) = togglebuttons(collect(x); kwargs...)
 widget(x::AbstractDict; kwargs...) = togglebuttons(x; kwargs...)
 
 function widget(x::T; kwargs...) where T<:Union{Bool, AbstractString, Real, Dates.Date, Dates.Time, Colorant}
