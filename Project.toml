@@ -9,10 +9,10 @@ Observables = "510215fc-4207-5dde-b226-833fc4488ee2"
 OrderedCollections = "bac558e1-5e72-5ebc-8fee-abe8a469f55d"
 
 [compat]
-InteractBase = ">=0.7.1"
-Observables = ">=0.2.2"
-WebIO = ">=0.3.1"
-julia = "0.7, 1"
+InteractBase = "0.8, 0.9, 0.10"
+Observables = "0.3, 0.4"
+WebIO = "0.7, 0.8"
+julia = "1"
 
 [extras]
 InteractBase = "d3863d7c-f0c8-5437-a7b4-3ae773c01009"
