@@ -1,6 +1,13 @@
 function triggeredby!(o::AbstractObservable, a::AbstractObservable, b::AbstractObservable)
-    f = on(t -> setindex!(a, t), o)
-    on(t -> setindex!(o, a[], notify = x -> x != f), b)
+    update = Ref(true)
+    f = on(o) do t
+        update[] && (a[] = t)
+    end
+    on(b) do _
+        update[] = false
+        o[] = a[]
+        update[] = true
+    end
     o
 end
 
