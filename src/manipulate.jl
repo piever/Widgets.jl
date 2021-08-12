@@ -79,6 +79,10 @@ macro manipulate(args...)
     block = expr.args[2]
     if expr.args[1].head == :block
         bindings = expr.args[1].args
+        # remove trailing LineNumberNodes from loop body as to not just return `nothing`
+        if bindings[end] isa LineNumberNode
+            resize!(bindings, length(bindings) - 1)
+        end
     else
         bindings = [expr.args[1]]
     end
