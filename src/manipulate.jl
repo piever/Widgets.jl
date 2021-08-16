@@ -77,6 +77,12 @@ macro manipulate(args...)
               " [<variable>=<domain>,]... <expression> end")
     end
     block = expr.args[2]
+    # remove trailing LineNumberNodes from loop body as to not just return `nothing`
+    # ref https://github.com/JuliaLang/julia/pull/41857
+    if Meta.isexpr(block, :block) && block.args[end] isa LineNumberNode
+        pop!(block.args)
+    end
+
     if expr.args[1].head == :block
         bindings = expr.args[1].args
     else
