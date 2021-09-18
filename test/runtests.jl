@@ -129,3 +129,20 @@ end
     @test observe(ui)[] == RGB(0.3, 0.3, 0.3)
 end
 
+@testset "modifiers" begin
+    a = Observable(1)
+    b = Observable(true)
+    o = Widgets.triggeredby(a, b)
+    q = map(abs2, o)
+    @test o[] == 1
+    @test q[] == 1
+    a[] = 2
+    @test o[] == 1
+    @test q[] == 1
+    b[] = true
+    @test o[] == 2
+    @test q[] == 4
+    o[] = 7
+    @test a[] == 7
+    @test q[] == 49
+end

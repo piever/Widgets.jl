@@ -1,6 +1,6 @@
 function triggeredby!(o::AbstractObservable, a::AbstractObservable, b::AbstractObservable)
     update = Ref(true)
-    f = on(o) do t
+    on(o) do t
         update[] && (a[] = t)
     end
     on(b) do _
