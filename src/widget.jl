@@ -17,7 +17,7 @@ function Widget{T}(components::OrderedDict{Symbol,Any};
     scope = nothing,
     layout = defaultlayout(get_backend())
 ) where {T}
-    output_obs = to_abstractobservable(output)
+    output_obs = output isa AbstractObservable ? observe(output) : Observable(output)
     Widget{T}(components, output_obs, scope, layout)
 end
 
