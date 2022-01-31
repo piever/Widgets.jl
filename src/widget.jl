@@ -4,7 +4,7 @@ abstract type AbstractWidget{T, S} <: AbstractObservable{S}; end
 
 mutable struct Widget{T, S} <: AbstractWidget{T, S}
     components::OrderedDict{Symbol, Any}
-    output::AbstractObservable{S}
+    output::Observable{S}
     scope
     layout::Function
     function Widget{T}(components::OrderedDict{Symbol,Any}, output::Observable{S}, scope, layout) where {T,S}
