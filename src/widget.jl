@@ -26,9 +26,9 @@ Widget{T}(components; kwargs...) where {T} = Widget{T}(OrderedDict{Symbol, Any}(
 Widget{T}(; components = OrderedDict{Symbol, Any}(), kwargs...) where {T} = Widget{T}(components; kwargs...)
 
 function Widget{T}(w::Widget; 
-    components=w.components, output=w.output, scope=w.scope, layout=w.layout, kw...
+    components=w.components, output=w.output, scope=w.scope, layout=w.layout
 ) where {T}
-    Widget{T}(; components=components, output=output, scope=scope, layout=layout, kw...)
+    Widget{T}(; components=components, output=output, scope=scope, layout=layout)
 end
 
 Widget(w::Widget{T}; kwargs...) where {T} = Widget{T}(w; kwargs...)
