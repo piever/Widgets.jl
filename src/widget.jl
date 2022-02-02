@@ -4,29 +4,31 @@ abstract type AbstractWidget{T, S} <: AbstractObservable{S}; end
 
 mutable struct Widget{T, S} <: AbstractWidget{T, S}
     components::OrderedDict{Symbol, Any}
-    output::AbstractObservable{S}
+    output::Observable{S}
     scope
     layout::Function
-    function Widget{T}(components::OrderedDict{Symbol, Any};
-        output = Observable{Any}(nothing),
-        scope = nothing,
-        layout = defaultlayout(get_backend())) where {T, S}
-
-        output_obs = to_abstractobservable(output)
-        new{T, eltype(output_obs)}(components, to_abstractobservable(output), scope, layout)
+    function Widget{T}(components::OrderedDict{Symbol,Any}, output::Observable{S}, scope, layout) where {T,S}
+        new{T,S}(components, output, scope, layout)
     end
+end
+
+function Widget{T}(components::OrderedDict{Symbol,Any};
+    output = Observable{Any}(nothing),
+    scope = nothing,
+    layout = defaultlayout(get_backend())
+) where {T}
+    output_obs = output isa AbstractObservable ? observe(output) : Observable(output)
+    Widget{T}(components, output_obs, scope, layout)
 end
 
 Widget{T}(components; kwargs...) where {T} = Widget{T}(OrderedDict{Symbol, Any}(Symbol(key) => val for (key, val) in components); kwargs...)
 
 Widget{T}(; components = OrderedDict{Symbol, Any}(), kwargs...) where {T} = Widget{T}(components; kwargs...)
 
-function Widget{T}(w::Widget; kwargs...) where {T}
-    dict = Dict{Symbol, Any}(kwargs)
-    for field in fieldnames(Widget)
-        get!(dict, field, getfield(w, field))
-    end
-    Widget{T}(; dict...)
+function Widget{T}(w::Widget; 
+    components=w.components, output=w.output, scope=w.scope, layout=w.layout
+) where {T}
+    Widget{T}(; components=components, output=output, scope=scope, layout=layout)
 end
 
 Widget(w::Widget{T}; kwargs...) where {T} = Widget{T}(w; kwargs...)
