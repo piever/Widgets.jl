@@ -24,7 +24,7 @@ and for a textbox it corresponds to losing focus.
 
 ```julia
 sld = slider(1:100) |> onchange # update on release
-txt = textbox("Write here") |> onchange # update on losing focuse
+txt = textbox("Write here") |> onchange # update on losing focus
 ```
 """
 function onchange(w::AbstractWidget{T}, change = w[:changes]) where T
