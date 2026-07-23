@@ -1,4 +1,4 @@
-using Widgets, Observables, OrderedCollections, InteractBase, WebIO
+using Widgets, Observables, InteractBase, WebIO
 using Colors
 using Widgets: Widget, @layout, widgettype
 import Widgets: observe, @auto
